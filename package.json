@@ -13,9 +13,9 @@
     "scripts": {
       "start": "node mainserver.js",
       "postinstall": "npm run build:all",
-      "build:all": "npm run build:frontend0 && npm run build:frontendPortal",
-      "build:frontend0": "cd frontend0 && npm install && npm run build",
-      "build:frontendPortal": "cd frontEnd && npm install && npm run build"
+      "build:all": "npm run build:frontend-itc && npm run build:frontendPortal",
+      "build:frontend-itc": "cd frontend-itc && npm install && npm run build",
+      "build:frontendPortal": "cd portal-itc && npm install && npm run build"
     },
     "engines": {
       "node": ">=16.20.1"
