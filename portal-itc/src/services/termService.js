@@ -4,7 +4,6 @@ import axios from "axios";
 const API_URL = "/academic/api/terms";
 export const getAllTerms = async () => {
   const response = await axios.get(API_URL);
-  console.log(response, "Terms")
   return response.data;
 };
 

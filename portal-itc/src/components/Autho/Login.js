@@ -1,18 +1,20 @@
 import { useState, useContext } from 'react';
-import { FaEnvelope, FaLock, FaExclamationTriangle, FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa';
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import AuthContext from '../../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Footer from '../SharedNav/Footer';
 import TopNav from '../SharedNav/Topvabae';
 import Navbar from '../SharedNav/Navbar';
 
 const Login = () => {
   const { loginUser } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,26 +31,88 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setValidationErrors({});
+    
     const errors = validateForm();
-    setValidationErrors(errors);
-
-    if (Object.keys(errors).length > 0) return;
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
 
     setIsLoading(true);
     try {
-      await loginUser(email, password);
+      const userData = await loginUser(email, password);
+      if (userData) {
+        toast.success('Login successful! Redirecting...', {
+          position: "top-center",
+          autoClose: 1000,
+          onClose: () => {
+            // Navigation happens after toast closes
+            if (userData.role === 'student') {
+              navigate('/admin');
+            } else if (userData.role === 'teacher') {
+              navigate('/Staff');
+            }
+            else if (userData.role === 'Account') {
+              navigate('/Account');
+            } else if (userData.role === 'sadmin') {
+              navigate('/Sadmin');
+            }
+          }
+        });
+      }
     } catch (err) {
-      setError('Invalid email or password');
+      const errorResponse = err.response?.data;
+      
+      if (errorResponse?.errorType === 'EMAIL_NOT_FOUND') {
+        toast.error('This email is not registered. Please check your email.', {
+          position: "top-center",
+          autoClose: 5000,
+        });
+      } else if (errorResponse?.errorType === 'INCORRECT_PASSWORD') {
+        toast.error('The password you entered is incorrect. Please try again.', {
+          position: "top-center",
+          autoClose: 5000,
+        });
+      } else if (err.response?.status === 500) {
+        toast.error('Our servers are busy. Please try again later.', {
+          position: "top-center"
+        });
+      } else if (err.code === 'ERR_NETWORK') {
+        toast.error('Network connection failed. Please check your internet.', {
+          position: "top-center"
+        });
+      } else {
+        toast.error('Login failed. Please try again.', {
+          position: "top-center"
+        });
+      }
+      
+      console.error('Login error:', errorResponse || err);
     } finally {
       setIsLoading(false);
     }
   };
 
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-white">
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        toastClassName="shadow-lg"
+      />
+      
       <TopNav />
       <Navbar />
+      
       <div className="flex flex-col items-center justify-center pt-20 pb-12 px-4">
         <motion.div
           className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 md:p-8 space-y-6"
@@ -58,17 +122,8 @@ const Login = () => {
         >
           <h2 className="text-3xl font-bold text-center text-itccolor">Login</h2>
 
-          {error && (
-            <motion.div
-              className="bg-red-100 text-red-700 p-3 rounded-md flex items-center gap-2 text-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <FaExclamationTriangle /> {error}
-            </motion.div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email Input */}
             <motion.div whileFocus={{ scale: 1.02 }} className="relative">
               <FaEnvelope className="absolute top-3 left-3 text-gray-400" />
               <input
@@ -83,6 +138,7 @@ const Login = () => {
               )}
             </motion.div>
 
+            {/* Password Input */}
             <motion.div whileFocus={{ scale: 1.02 }} className="relative">
               <FaLock className="absolute top-3 left-3 text-gray-400" />
               <input
@@ -103,6 +159,7 @@ const Login = () => {
               )}
             </motion.div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
@@ -122,14 +179,23 @@ const Login = () => {
             </button>
           </form>
 
-          <p className="text-sm text-center text-gray-500">
-            Don't have an account?{' '}
-            <Link to="/#" className="text-itccolor hover:underline font-medium">
-              Contact the Admin
-            </Link>
-          </p>
+          <div className="flex justify-between text-sm">
+            <button 
+              onClick={() => navigate('/forgot-password')}
+              className="text-itccolor hover:underline"
+            >
+              Forgot password?
+            </button>
+            <span className="text-gray-500">
+              No account?{' '}
+              <Link to="/#yy" className="text-itccolor hover:underline">
+                Contact admin
+              </Link>
+            </span>
+          </div>
         </motion.div>
       </div>
+      
       <Footer />
     </div>
   );

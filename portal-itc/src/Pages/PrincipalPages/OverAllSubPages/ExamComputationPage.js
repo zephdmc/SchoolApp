@@ -138,14 +138,7 @@ const ComputationManagementPage = () => {
           className="border p-2 mr-2"
           required
         />
-        <input
-          type="text"
-          name="class"
-          placeholder="class"
-          value={formData.class}
-          onChange={handleInputChange}
-          className="border p-2 mr-2"
-        />
+       
        <select
           name="term"
           value={formData.term}

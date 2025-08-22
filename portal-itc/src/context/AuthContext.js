@@ -18,26 +18,27 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
       }, []);
     
-    const loginUser = async (email, password) => {
+      const loginUser = async (email, password) => {
         setLoading(true);
         try {
-    const data = await login(email, password);
-            setUser(data);
-            console.log(data.role,'Loading')
-      if (data.role === 'student') {
-        navigate('/admin');
-      } else if (data.role === 'teacher') {
-        navigate('/Staff');
+          const data = await login(email, password);
+          
+          if (!data || !data.token) {
+            throw new Error('Invalid response from server');
           }
-          else if (data.role === 'sadmin') {
-            navigate('/Sadmin');
-                }
+      
+          setUser(data);
+          localStorage.setItem('token', data.token);
+          
+          // Return the user data for role-based navigation
+          return data;
         } catch (err) {
-            setError('Invalid credentials');
-          } finally {
-            setLoading(false);
-          }
-  };
+          console.error('Login error:', err.response?.data || err);
+          throw err;
+        } finally {
+          setLoading(false);
+        }
+      };
 
     
     

@@ -34,6 +34,11 @@ const paymentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+   // Other fields...
+   transaction: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Transaction', // Must match the Transaction model name
+  },
   verified: {
     type: Boolean,
     default: false

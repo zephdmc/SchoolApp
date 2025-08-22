@@ -21,6 +21,12 @@ export const deleteClass = async (id) => {
   await axios.delete(`${API_URL}/${id}`);
 };
 
+// Get student by ID
+export const getClassById = async (id) => {
+  return await axios.get(`${API_URL}/${id}`);
+};
+
+
 
 // export const updateClass = async (id, updatedData) => {
 //   return await Class.findByIdAndUpdate(id, updatedData, { new: true, runValidators: true });

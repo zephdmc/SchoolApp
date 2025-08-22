@@ -39,19 +39,48 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    
+    try {
+        // Check if email exists
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ 
+                success: false,
+                message: 'Email not found',
+                errorType: 'EMAIL_NOT_FOUND'
+            });
+        }
 
-    if (user && (await user.matchPassword(password))) {
+        // Verify password
+        const isMatch = await user.matchPassword(password);
+        if (!isMatch) {
+            return res.status(401).json({ 
+                success: false,
+                message: 'Incorrect password',
+                errorType: 'INCORRECT_PASSWORD'
+            });
+        }
+
+        // Generate token
+        const token = generateToken(user._id);
+
         res.json({
+            success: true,
             _id: user._id,
             username: user.username,
             email: user.email,
             role: user.role,
-            token: generateToken(user._id),
+            token
         });
-    } else {
-        res.status(401).json({ message: 'Invalid email or password' });
+
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Server error during login',
+            errorType: 'SERVER_ERROR',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 };
-
 module.exports = { registerUser, loginUser };

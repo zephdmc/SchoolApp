@@ -1,4 +1,5 @@
 const classService = require('../services/ClassServices');
+const Class = require('../models/Class')
 
 exports.createClass = async (req, res) => {
     try {
@@ -19,21 +20,29 @@ exports.getClasses = async (req, res) => {
 };
 
 
-// Update an existing class
+// Debug: Check what's being imported
+
+
 exports.updateClass = async (req, res) => {
-    const { id } = req.params;
-    const updatedData = req.body;
-    try {
-      const updatedClass = await classService.updateClass(id, updatedData);
-      if (!updatedClass) {
-        return res.status(404).json({ message: 'Class not found' });
-      }
-      res.status(200).json({ message: 'Class updated successfully', updatedClass });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+  try {  
+    const updatedClass = await classService.updateClass(
+      req.params.id,
+      req.body
+    );
+    
+    if (!updatedClass) {
+      return res.status(404).json({ message: 'Class not found' });
     }
-  };
-  
+    
+    res.status(200).json(updatedClass);
+  } catch (error) {
+    console.error('Update error:', error);
+    res.status(500).json({ 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+};
   // Delete a class
   exports.deleteClass = async (req, res) => {
     const { id } = req.params;
@@ -46,4 +55,16 @@ exports.updateClass = async (req, res) => {
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
-  };
+};
+  
+
+exports.getClassById = async (req, res) => {
+  try {
+    const {ClassID} = req.params.id;
+    const student = await Class.findOne(ClassID);
+    if (!student) return res.status(407).json({ message: 'Student not found' });
+    res.status(200).json(student);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

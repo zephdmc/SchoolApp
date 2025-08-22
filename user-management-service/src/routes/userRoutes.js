@@ -9,6 +9,7 @@ const {
     updateEnrollTeacher,
     getStudentsWithoutEnroll,
     getTeachersWithoutEnroll,
+    adminUpdateUser
 
 } = require('../controller/userController');
 
@@ -16,6 +17,7 @@ const router = express.Router();
 
 router.get('/profile', protect, getUserProfile);
 router.put('/profile', protect, updateUserProfile);
+router.put('/admin/:userId', protect, adminUpdateUser);
 // Route to update Enroll
 router.put('/users/:userId/enroll', updateEnroll);
 router.put('/users/:userId/enrollTeacher', updateEnrollTeacher);

@@ -1,450 +1,4 @@
-// import React, { useEffect, useState } from "react";
-// import { createStudent, getAllStudents, updateStudent, deleteStudent } from "../../services/studentService";
-
-// const StudentsReg = () => {
-//   const [students, setStudents] = useState([]);
-//   const [form, setForm] = useState({ name: "", age: "", gender: "", class: "" });
-//   const [editId, setEditId] = useState(null);
-
-//   // Fetch students on mount
-//   useEffect(() => {
-//     fetchStudents();
-//   }, []);
-
-//   const fetchStudents = async () => {
-//     try {
-//       const response = await getAllStudents();
-//       setStudents(response.data);
-//     } catch (error) {
-//       console.error("Error fetching students:", error);
-//     }
-//   };
-
-//   const handleChange = (e) => {
-//     setForm({ ...form, [e.target.name]: e.target.value });
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       if (editId) {
-//         await updateStudent(editId, form);
-//         setEditId(null);
-//       } else {
-//         await createStudent(form);
-//       }
-//       setForm({ name: "", age: "", gender: "", class: "" });
-//       fetchStudents();
-//     } catch (error) {
-//       console.error("Error submitting form:", error);
-//     }
-//   };
-
-//   const handleEdit = (student) => {
-//     setForm(student);
-//     setEditId(student._id);
-//   };
-
-//   const handleDelete = async (id) => {
-//     if (window.confirm("Are you sure you want to delete this student?")) {
-//       try {
-//         await deleteStudent(id);
-//         fetchStudents();
-//       } catch (error) {
-//         console.error("Error deleting student:", error);
-//       }
-//     }
-//   };
-
-//   return (
-//     <div className="container mx-auto p-4">
-//       <h1 className="text-2xl font-bold mb-4">Student Registration</h1>
-//       {/* Student Form */}
-//       <form onSubmit={handleSubmit} className="mb-4">
-//         <input type="text" name="name" value={form.name} onChange={handleChange} placeholder="Name" required className="border p-2 m-2" />
-//         <input type="number" name="age" value={form.age} onChange={handleChange} placeholder="Age" required className="border p-2 m-2" />
-//         <select name="gender" value={form.gender} onChange={handleChange} required className="border p-2 m-2">
-//           <option value="">Select Gender</option>
-//           <option value="Male">Male</option>
-//           <option value="Female">Female</option>
-//         </select>
-//         <input type="text" name="class" value={form.class} onChange={handleChange} placeholder="Class (e.g. JSS1)" required className="border p-2 m-2" />
-//         <button type="submit" className="bg-blue-500 text-white p-2">{editId ? "Update" : "Register"}</button>
-//       </form>
-
-//       {/* Students List */}
-//       <table className="w-full border-collapse border">
-//         <thead>
-//           <tr className="bg-gray-200">
-//             <th className="border p-2">Name</th>
-//             <th className="border p-2">Age</th>
-//             <th className="border p-2">Gender</th>
-//             <th className="border p-2">Class</th>
-//             <th className="border p-2">Actions</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {students.map((student) => (
-//             <tr key={student._id} className="border">
-//               <td className="border p-2">{student.name}</td>
-//               <td className="border p-2">{student.age}</td>
-//               <td className="border p-2">{student.gender}</td>
-//               <td className="border p-2">{student.class}</td>
-//               <td className="border p-2">
-//                 <button onClick={() => handleEdit(student)} className="bg-yellow-500 text-white p-1 m-1">Edit</button>
-//                 <button onClick={() => handleDelete(student._id)} className="bg-red-500 text-white p-1 m-1">Delete</button>
-//               </td>
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-//     </div>
-//   );
-// };
-
-// export default StudentsReg;
-
-
-
-
-// import React, { useEffect, useState, useContext} from "react";
-// import { createStudent, getAllStudents, updateStudent, deleteStudent } from "../../services/studentService";
-// import {getAllClasses} from "../../services/ClassService";
-// import {getAllSessions} from "../../services/SessionService";
-// import AuthContext from '../../context/AuthContext';
-// import {updateEnroll, getAllUsersNotEnroll,  } from "../../services/userService" 
-
-// const StudentsReg = () => {
-//   const { user } = useContext(AuthContext);
-//   const [students, setStudents] = useState([]);
-//   const [studentsNotEnroll, setUserNotEnroll] = useState([]);
-//   const [classes, setClasses] = useState([]);
-//   const [sessions, setSessions] = useState([]);
-//   const [editId, setEditId] = useState(null);
-// const [Error, setMessage] = useState([])
-//   const [form, setForm] = useState({
-//     studentID: "",
-//     firstName: "",
-//     lastName: "",
-//     middleName: "",
-//     gender: "",
-//     dateOfBirth: "",
-//     nationality: "Nigerian",
-//     stateOfOrigin: "",
-//     lgaOfOrigin: "",
-//     address: "",
-//     phoneNumber: "",
-//     email: "",
-//     admissionNumber: "",
-//     class: "",
-//     section: "",
-//     guardian: { fullName: "", relationship: "", phoneNumber: "", address: "" },
-//     admissionDate: "",
-//     passportPhoto: "",
-//     bloodGroup: "",
-//     genotype: "",
-//     emergencyContact: { name: "", phone: "", relationship: "" },
-//     status: "Active",
-//     session: "" // New session field
-//   });
-
-//   // Fetch students, classes, and sessions on mount
-//   useEffect(() => {
-//     fetchStudents();
-//     fetchClasses();
-//     fetchSessions();
-//     fetchUsers()
-//   }, []);
-
-//   const fetchStudents = async () => {
-//     try {
-//       const response = await getAllStudents();
-//       console.log(response, "fectehd student");
-//       setStudents(response?.data || []); // Chaining to prevent errors if no data
-//     } catch (error) {
-//       console.error("Error fetching students:", error);
-//       setStudents([]); // Ensure state is always an array
-//     }
-//   };
-
-//   const fetchUsers = async () => {
-//     try {
-//       const response = await getAllUsersNotEnroll(user.token);
-//       console.log(response, "fetched users");
-  
-//       // Ensure `students` array is properly extracted
-//       setUserNotEnroll(response?.data?.students || []);  
-//     } catch (error) {
-//       console.error("Error fetching students:", error);
-//       setUserNotEnroll([]); // Ensure state is always an array
-//     }
-//   };
-
-//   const handleUpdateEnroll = async (userId) => {
-//     try {
-//       const response = await updateEnroll(userId);
-//       setMessage(response.message);
-//     } catch (error) {
-//       setMessage(error.response?.data?.message || 'Error updating enroll');
-//     }
-//   };
-
-//   const fetchClasses = async () => {
-//     try {
-//       const response = await getAllClasses();
-//       console.log(response, "fectehd class");
-
-//       setClasses(response || []); // Handle empty response
-//     } catch (error) {
-//       console.error("Error fetching classes:", error);
-//     }
-//   };
-
-
-//   const fetchSessions = async () => {
-//     try {
-//       const response = await getAllSessions();
-//       console.log(response, "fectehd session");
-//       setSessions(response|| []); // Handle empty response
-//     } catch (error) {
-//       console.error("Error fetching sessions:", error);
-//     }
-//   };
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setForm((prev) => ({
-//       ...prev,
-//       [name]: value
-//     }));
-//   };
-
-//   const handleGuardianChange = (e) => {
-//     const { name, value } = e.target;
-//     setForm((prev) => ({
-//       ...prev,
-//       guardian: { ...prev.guardian, [name]: value }
-//     }));
-//   };
-
-//   const handleEmergencyContactChange = (e) => {
-//     const { name, value } = e.target;
-//     setForm((prev) => ({
-//       ...prev,
-//       emergencyContact: { ...prev.emergencyContact, [name]: value }
-//     }));
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       if (editId) {
-//         await updateStudent(editId, form);
-//         setEditId(null);
-//       } else {
-//         await createStudent(form);
-//       }
-//       const selectedUserId = form.studentID; // Get the selected 
-//       setForm({
-//         studentID: "",
-//         firstName: "",
-//         lastName: "",
-//         middleName: "",
-//         gender: "",
-//         dateOfBirth: "",
-//         nationality: "Nigerian",
-//         stateOfOrigin: "",
-//         lgaOfOrigin: "",
-//         address: "",
-//         phoneNumber: "",
-//         email: "",
-//         admissionNumber: "",
-//         class: "",
-//         section: "",
-//         guardian: { fullName: "", relationship: "", phoneNumber: "", address: "" },
-//         admissionDate: "",
-//         passportPhoto: "",
-//         bloodGroup: "",
-//         genotype: "",
-//         emergencyContact: { name: "", phone: "", relationship: "" },
-//         status: "Active",
-//         session: ""
-//       });
-//  // Trigger updateEnroll with the selected user ID
-//  if (selectedUserId) {
-//   await handleUpdateEnroll(selectedUserId);
-// }
-
-//       fetchStudents();
-//       fetchUsers(); // Refresh users without enrollment
-//     } catch (error) {
-//       console.error("Error submitting form:", error);
-//     }
-//   };
-
-//   const handleEdit = (student) => {
-//     setForm(student);
-//     setEditId(student._id);
-//   };
-
-//   const handleDelete = async (id) => {
-//     if (window.confirm("Are you sure you want to delete this student?")) {
-//       try {
-//         await deleteStudent(id);
-//         fetchStudents();
-//       } catch (error) {
-//         console.error("Error deleting student:", error);
-//       }
-//     }
-//   };
-
-
-// return (
-//   <div className="container mx-auto p-4">
-//     <h1 className="text-2xl font-bold mb-4">Student Registration</h1>
-
-//     {/* Student Form */}
-//     <form onSubmit={handleSubmit} className="mb-4 grid grid-cols-2 gap-4">
-//       <select name="studentID" value={form.studentID} onChange={handleChange} required className="border p-2">
-//         <option value="">Select Student</option>
-//         {studentsNotEnroll.map((student) => (
-//           <option key={student._id} value={student._id}>
-//             {student.username} 
-//           </option>
-//         ))}
-//       </select>
-//       <input type="text" name="firstName" value={form.firstName} onChange={handleChange} placeholder="First Name" required className="border p-2" />
-//       <input type="text" name="lastName" value={form.lastName} onChange={handleChange} placeholder="Last Name" required className="border p-2" />
-//       <input type="text" name="middleName" value={form.middleName} onChange={handleChange} placeholder="Middle Name" className="border p-2" />
-//       <select name="gender" value={form.gender} onChange={handleChange} required className="border p-2">
-//         <option value="">Select Gender</option>
-//         <option value="Male">Male</option>
-//         <option value="Female">Female</option>
-//       </select>
-//       <input type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} required className="border p-2" />
-//       <input type="text" name="stateOfOrigin" value={form.stateOfOrigin} onChange={handleChange} placeholder="State of Origin" required className="border p-2" />
-//       <input type="text" name="lgaOfOrigin" value={form.lgaOfOrigin} onChange={handleChange} placeholder="LGA of Origin" required className="border p-2" />
-//       <input type="text" name="section" value={form.section} onChange={handleChange} placeholder="Section" required className="border p-2" />
-//       <input type="text" name="phoneNumber" value={form.phoneNumber} onChange={handleChange} placeholder="Phone Number" required className="border p-2" />
-//       <input type="text" name="email" value={form.email} onChange={handleChange} placeholder="Email" className="border p-2" />
-//       <input type="text" name="admissionNumber" value={form.admissionNumber} onChange={handleChange} placeholder="Admission Number" required className="border p-2" />
-//       <select name="class" value={form.class} onChange={handleChange} required className="border p-2">
-//         <option value="">Select Class</option>
-//         {classes.map((cls) => (
-//           <option key={cls._id} value={cls._id}>
-//             {cls.name}
-//           </option>
-//         ))}
-//       </select>
-//       <select name="session" value={form.session} onChange={handleChange} required className="border p-2">
-//         <option value="">Select Session</option>
-//         {sessions.map((sess) => (
-//           <option key={sess._id} value={sess._id}>
-//             {sess.name}
-//           </option>
-//         ))}
-//       </select>
-// {/* Dropdown for Session */}
-//         <select name="session" value={form.session} onChange={handleChange} required className="border p-2">
-//           <option value="">Select Session</option>
-//         {sessions.map((session) => (
-//             <option key={session._id} value={session._id}>{session.name}</option>
-//           ))}
-//         </select>
-//       <input type="text" name="address" value={form.address} onChange={handleChange} placeholder="Address" required className="border p-2" />
-//       <input type="text" name="bloodGroup" value={form.bloodGroup} onChange={handleChange} placeholder="Blood Group" className="border p-2" />
-//       <input type="text" name="genotype" value={form.genotype} onChange={handleChange} placeholder="Genotype" className="border p-2" />
-
-//       {/* Guardian Details */}
-//       <h2 className="text-xl font-bold col-span-2">Guardian Information</h2>
-//       <input type="text" name="fullName" value={form.guardian.fullName} onChange={handleGuardianChange} placeholder="Guardian's Full Name" required className="border p-2" />
-//       <input type="text" name="relationship" value={form.guardian.relationship} onChange={handleGuardianChange} placeholder="Relationship" required className="border p-2" />
-//       <input type="text" name="phoneNumber" value={form.guardian.phoneNumber} onChange={handleGuardianChange} placeholder="Guardian's Phone Number" required className="border p-2" />
-//       <input type="text" name="address" value={form.guardian.address} onChange={handleGuardianChange} placeholder="Guardian's Address" required className="border p-2" />
-
-//       {/* Emergency Contact */}
-//       <h2 className="text-xl font-bold col-span-2">Emergency Contact</h2>
-//       <input type="text" name="name" value={form.emergencyContact.name} onChange={handleEmergencyContactChange} placeholder="Emergency Contact Name" required className="border p-2" />
-//       <input type="text" name="phone" value={form.emergencyContact.phone} onChange={handleEmergencyContactChange} placeholder="Emergency Contact Phone" required className="border p-2" />
-//       <input type="text" name="relationship" value={form.emergencyContact.relationship} onChange={handleEmergencyContactChange} placeholder="Relationship" required className="border p-2" />
-
-//       <button type="submit" className="bg-blue-500 text-white p-2 col-span-2">{editId ? "Update" : "Register"}</button>
-//     </form>
-
-//     {/* Students List */}
-//     <table className="w-full border-collapse border mt-4">
-//       <thead>
-//         <tr className="bg-gray-200">
-//           <th className="border p-2">Name</th>
-//           <th className="border p-2">Gender</th>
-//           <th className="border p-2">Phone</th>
-//           <th className="border p-2">Admission Numer</th>
-//           <th className="border p-2">Actions</th>
-//         </tr>
-//       </thead>
-//       {/* <tbody>
-//         {students.map((student) => (
-//           <tr key={student._id} className="border">
-//             <td className="border p-2">{student.firstName}</td>
-//             <td className="border p-2">{student.lastName}</td>
-//             <td className="border p-2">{student.gender}</td>
-//             <td className="border p-2">{student.class}</td>
-//             <td className="border p-2">{student.session}</td>
-//             <td className="border p-2">
-//               <button onClick={() => handleEdit(student)} className="bg-yellow-500 text-white p-1 m-1">Edit</button>
-//               <button onClick={() => handleDelete(student._id)} className="bg-red-500 text-white p-1 m-1">Delete</button>
-//             </td>
-//           </tr>
-//         ))}
-//       </tbody> */}
-
-
-// <tbody>
-//           {/* {students.map((student) => (
-// //             <tr key={student._id} className="border">
-// //               <td className="border p-2">{student.firstName} {student.lastName}</td>
-// //               <td className="border p-2">{student.gender}</td>
-// //               <td className="border p-2">{student.class}</td>
-// //               <td className="border p-2">{student.session}</td>
-// //               <td className="border p-2">
-// //                 <button onClick={() => handleEdit(student)} className="bg-yellow-500 text-white p-1 m-1">Edit</button>
-// //                 <button onClick={() => handleDelete(student._id)} className="bg-red-500 text-white p-1 m-1">Delete</button>
-// //               </td>
-// //             </tr>
-// //           ))} */}
-
-//  {Array.isArray(students) && students.length > 0 ? (
-//    students.map((student) => (
-//      <tr key={student._id} className="border">
-//        <td className="border p-2">{student.firstName} {student.lastName}</td>
-//        <td className="border p-2">{student.gender}</td>
-//        <td className="border p-2">{student.phoneNumber}</td>
-//        <td className="border p-2">{student.admissionNumber}</td>
-//        <td className="border p-2">
-//          <button onClick={() => handleEdit(student)} className="bg-yellow-500 text-white p-1 m-1">Edit</button>
-//          <button onClick={() => handleDelete(student._id)} className="bg-red-500 text-white p-1 m-1">Delete</button>
-//        </td>
-//      </tr>
-//    ))
-//  ) : (
-//    <tr>
-//      <td colSpan="5" className="text-center p-4 text-gray-500">
-//        No students found
-//      </td>
-//    </tr>
-//  )}
-//          </tbody>
-//     </table>
-//   </div>
-// );
-// };
-
-// export default StudentsReg;
-
-
-
-
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext } from 'react';
 import {
   createStudent,
   getAllStudents,
@@ -470,7 +24,6 @@ const StudentsReg = () => {
   const studentsPerPage = 20;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState(null);
-  const [currentStep, setCurrentStep] = useState(1);
   
   const [form, setForm] = useState({
     studentID: "",
@@ -478,31 +31,9 @@ const StudentsReg = () => {
     lastName: "",
     middleName: "",
     gender: "",
-    dateOfBirth: "",
-    nationality: "Nigerian",
-    stateOfOrigin: "",
-    lgaOfOrigin: "",
-    address: "",
-    phoneNumber: "",
-    email: "",
     admissionNumber: "",
     class: "",
     section: "",
-    guardian: { 
-      fullName: "", 
-      relationship: "", 
-      phoneNumber: "", 
-      address: "" 
-    },
-    admissionDate: "",
-    passportPhoto: "",
-    bloodGroup: "",
-    genotype: "",
-    emergencyContact: { 
-      name: "", 
-      phone: "", 
-      relationship: "" 
-    },
     status: "Active",
     session: ""
   });
@@ -521,26 +52,12 @@ const StudentsReg = () => {
       lastName: "",
       middleName: "",
       gender: "",
-      dateOfBirth: "",
-      nationality: "Nigerian",
-      stateOfOrigin: "",
-      lgaOfOrigin: "",
-      address: "",
-      phoneNumber: "",
-      email: "",
       admissionNumber: "",
       class: "",
       section: "",
-      guardian: { fullName: "", relationship: "", phoneNumber: "", address: "" },
-      admissionDate: "",
-      passportPhoto: "",
-      bloodGroup: "",
-      genotype: "",
-      emergencyContact: { name: "", phone: "", relationship: "" },
       status: "Active",
       session: ""
     });
-    setCurrentStep(1);
     setEditId(null);
   };
 
@@ -549,22 +66,6 @@ const StudentsReg = () => {
     setForm((prev) => ({
       ...prev,
       [name]: value
-    }));
-  };
-
-  const handleGuardianChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      guardian: { ...prev.guardian, [name]: value }
-    }));
-  };
-
-  const handleEmergencyContactChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      emergencyContact: { ...prev.emergencyContact, [name]: value }
     }));
   };
 
@@ -594,7 +95,7 @@ const StudentsReg = () => {
       setUserNotEnroll(response?.data?.students || []);
     } catch (error) {
       console.error("Error fetching students:", error);
-      setError("Failed to fetch unenrolled students");
+      setError("Unenrolled students not available");
     }
   };
 
@@ -650,18 +151,25 @@ const StudentsReg = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const formData = { ...form };
+  
       if (editId) {
-        await updateStudent(editId, form);
+        await updateStudent(editId, formData);
       } else {
-        await createStudent(form);
+        await createStudent(formData);
+        const userIdToEnroll = formData?.studentID;
+        if (userIdToEnroll) {
+          await handleUpdateEnroll(userIdToEnroll);
+        }
       }
-      fetchStudents();
-      fetchUsers();
+  
+      await fetchStudents();
+      await fetchUsers();
       setIsModalOpen(false);
       resetForm();
     } catch (error) {
-      console.error("Error submitting form:", error);
-      setError(error.response?.data?.message || "Failed to save student");
+      console.error("Registration error:", error);
+      setError(error.response?.data?.error || "Registration failed. Please check all fields.");
     }
   };
 
@@ -689,10 +197,10 @@ const StudentsReg = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Student Registration</h1>
+      <h1 className="text-xl md:text-2xl font-bold mb-4">Student Registration</h1>
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm md:text-base">
           {error}
         </div>
       )}
@@ -704,12 +212,12 @@ const StudentsReg = () => {
           placeholder="Search by name or admission number"
           value={searchQuery}
           onChange={handleSearch}
-          className="border p-2 w-full md:w-1/3 rounded"
+          className="border p-2 w-full md:w-1/3 rounded text-sm md:text-base"
         />
         <select
           value={selectedClass}
           onChange={handleClassFilter}
-          className="border p-2 w-full md:w-1/3 rounded"
+          className="border p-2 w-full md:w-1/3 rounded text-sm md:text-base"
         >
           <option value="">Filter by Class</option>
           {classes.map((cls) => (
@@ -723,7 +231,7 @@ const StudentsReg = () => {
             resetForm();
             setIsModalOpen(true);
           }}
-          className="bg-itccolor text-white px-4 py-2 rounded w-full md:w-auto hover:bg-red-600 transition"
+          className="bg-itccolor text-white px-4 py-2 rounded w-full md:w-auto hover:bg-red-600 transition text-sm md:text-base"
         >
           Register Student
         </button>
@@ -731,7 +239,7 @@ const StudentsReg = () => {
 
       {/* Student Count */}
       <div className="bg-gray-200 p-4 rounded mb-4">
-        <h2 className="text-lg font-bold">Total Students: {students.length}</h2>
+        <h2 className="text-lg font-bold text-sm md:text-base">Total Students: {students.length}</h2>
       </div>
 
       {/* Student List */}
@@ -739,29 +247,33 @@ const StudentsReg = () => {
         <table className="w-full border-collapse border">
           <thead>
             <tr className="bg-gray-200">
-              <th className="border p-2">First Name</th>
-              <th className="border p-2">Last Name</th>
-              <th className="border p-2">Admission Number</th>
-              <th className="border p-2">Actions</th>
+              <th className="border p-2 text-sm md:text-base">First Name</th>
+              <th className="border p-2 text-sm md:text-base">Last Name</th>
+              <th className="border p-2 text-sm md:text-base">Admission Number</th>
+              <th className="border p-2 text-sm md:text-base">Class</th>
+              <th className="border p-2 text-sm md:text-base">Actions</th>
             </tr>
           </thead>
           <tbody>
             {currentStudents.length > 0 ? (
               currentStudents.map((student) => (
                 <tr key={student._id}>
-                  <td className="border p-2">{student.firstName}</td>
-                  <td className="border p-2">{student.lastName}</td>
-                  <td className="border p-2">{student.admissionNumber}</td>
-                  <td className="border p-2">
+                  <td className="border p-2 text-sm md:text-base">{student.firstName}</td>
+                  <td className="border p-2 text-sm md:text-base">{student.lastName}</td>
+                  <td className="border p-2 text-sm md:text-base">{student.admissionNumber}</td>
+                  <td className="border p-2 text-sm md:text-base">
+                    {classes.find(c => c._id === student.class)?.name || student.class}
+                  </td>
+                  <td className="border p-2 text-sm md:text-base">
                     <button 
                       onClick={() => handleEdit(student)} 
-                      className="bg-yellow-500 text-white px-2 py-1 rounded mr-2 hover:bg-yellow-600 transition"
+                      className="bg-yellow-500 text-white px-2 py-1 rounded mr-2 hover:bg-yellow-600 transition text-xs md:text-sm"
                     >
                       Edit
                     </button>
                     <button 
                       onClick={() => handleDelete(student._id)} 
-                      className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                      className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition text-xs md:text-sm"
                     >
                       Delete
                     </button>
@@ -770,7 +282,7 @@ const StudentsReg = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="4" className="border p-2 text-center">
+                <td colSpan="5" className="border p-2 text-center text-sm md:text-base">
                   No students found
                 </td>
               </tr>
@@ -786,7 +298,9 @@ const StudentsReg = () => {
             <button
               key={index}
               onClick={() => setCurrentPage(index + 1)}
-              className={`px-4 py-2 mx-1 rounded ${currentPage === index + 1 ? "bg-itccolor  text-white" : "bg-gray-300 hover:bg-gray-400"}`}
+              className={`px-3 py-1 mx-1 rounded text-sm md:text-base ${
+                currentPage === index + 1 ? "bg-itccolor text-white" : "bg-gray-300 hover:bg-gray-400"
+              }`}
             >
               {index + 1}
             </button>
@@ -796,45 +310,24 @@ const StudentsReg = () => {
 
       {/* Registration Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg w-11/12 md:w-2/3 lg:w-1/2 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-bold mb-4 text-sm md:text-base">
               {editId ? "Edit Student" : "Register Student"}
             </h2>
             
-            {/* Step Indicator */}
-            <div className="flex justify-center mb-6">
-              {[1, 2, 3].map((step) => (
-                <React.Fragment key={step}>
-                  <div 
-                    className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                      currentStep >= step ? 'bg-itccolor text-white' : 'bg-gray-200'
-                    }`}
-                  >
-                    {step}
-                  </div>
-                  {step < 3 && (
-                    <div 
-                      className={`w-16 h-1 mt-3 ${
-                        currentStep > step ? 'bg-itccolor' : 'bg-gray-200'
-                      }`}
-                    ></div>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-
             <form onSubmit={handleSubmit} className="mb-4">
-              {/* Step 1: Basic Information */}
-              {currentStep === 1 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
+              <div className="grid grid-cols-1 gap-4">
+                {/* Only show student dropdown during registration, not edit */}
+                {!editId && (
+                  <div>
+                    <label className="block text-sm md:text-base mb-1">Student Username</label>
                     <select 
                       name="studentID" 
                       value={form.studentID} 
                       onChange={handleChange} 
                       required 
-                      className="w-full border p-2 rounded"
+                      className="w-full border p-2 rounded text-sm md:text-base"
                     >
                       <option value="">Select Student</option>
                       {studentsNotEnroll.map((student) => (
@@ -844,6 +337,10 @@ const StudentsReg = () => {
                       ))}
                     </select>
                   </div>
+                )}
+
+                <div>
+                  <label className="block text-sm md:text-base mb-1">First Name</label>
                   <input 
                     type="text" 
                     name="firstName" 
@@ -851,8 +348,12 @@ const StudentsReg = () => {
                     onChange={handleChange} 
                     placeholder="First Name" 
                     required 
-                    className="border p-2 rounded" 
+                    className="w-full border p-2 rounded text-sm md:text-base" 
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm md:text-base mb-1">Last Name</label>
                   <input 
                     type="text" 
                     name="lastName" 
@@ -860,85 +361,39 @@ const StudentsReg = () => {
                     onChange={handleChange} 
                     placeholder="Last Name" 
                     required 
-                    className="border p-2 rounded" 
+                    className="w-full border p-2 rounded text-sm md:text-base" 
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm md:text-base mb-1">Middle Name</label>
                   <input 
                     type="text" 
                     name="middleName" 
                     value={form.middleName} 
                     onChange={handleChange} 
                     placeholder="Middle Name" 
-                    className="border p-2 rounded" 
+                    className="w-full border p-2 rounded text-sm md:text-base" 
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm md:text-base mb-1">Gender</label>
                   <select 
                     name="gender" 
                     value={form.gender} 
                     onChange={handleChange} 
                     required 
-                    className="border p-2 rounded"
+                    className="w-full border p-2 rounded text-sm md:text-base"
                   >
                     <option value="">Select Gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
                   </select>
-                  <input 
-                    type="date" 
-                    name="dateOfBirth" 
-                    value={form.dateOfBirth} 
-                    onChange={handleChange} 
-                    required 
-                    className="border p-2 rounded" 
-                  />
-                  <input 
-                    type="text" 
-                    name="stateOfOrigin" 
-                    value={form.stateOfOrigin} 
-                    onChange={handleChange} 
-                    placeholder="State of Origin" 
-                    required 
-                    className="border p-2 rounded" 
-                  />
-                  <input 
-                    type="text" 
-                    name="lgaOfOrigin" 
-                    value={form.lgaOfOrigin} 
-                    onChange={handleChange} 
-                    placeholder="LGA of Origin" 
-                    required 
-                    className="border p-2 rounded" 
-                  />
-                  <input 
-                    type="text" 
-                    name="section" 
-                    value={form.section} 
-                    onChange={handleChange} 
-                    placeholder="Section" 
-                    required 
-                    className="border p-2 rounded" 
-                  />
                 </div>
-              )}
 
-              {/* Step 2: Academic Details */}
-              {currentStep === 2 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input 
-                    type="text" 
-                    name="phoneNumber" 
-                    value={form.phoneNumber} 
-                    onChange={handleChange} 
-                    placeholder="Phone Number" 
-                    required 
-                    className="border p-2 rounded" 
-                  />
-                  <input 
-                    type="text" 
-                    name="email" 
-                    value={form.email} 
-                    onChange={handleChange} 
-                    placeholder="Email" 
-                    className="border p-2 rounded" 
-                  />
+                <div>
+                  <label className="block text-sm md:text-base mb-1">Admission Number</label>
                   <input 
                     type="text" 
                     name="admissionNumber" 
@@ -946,14 +401,18 @@ const StudentsReg = () => {
                     onChange={handleChange} 
                     placeholder="Admission Number" 
                     required 
-                    className="border p-2 rounded" 
+                    className="w-full border p-2 rounded text-sm md:text-base" 
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm md:text-base mb-1">Class</label>
                   <select 
                     name="class" 
                     value={form.class} 
                     onChange={handleChange} 
                     required 
-                    className="border p-2 rounded"
+                    className="w-full border p-2 rounded text-sm md:text-base"
                   >
                     <option value="">Select Class</option>
                     {classes.map((cls) => (
@@ -962,12 +421,28 @@ const StudentsReg = () => {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm md:text-base mb-1">Section</label>
+                  <input 
+                    type="text" 
+                    name="section" 
+                    value={form.section} 
+                    onChange={handleChange} 
+                    placeholder="Section" 
+                    className="w-full border p-2 rounded text-sm md:text-base" 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm md:text-base mb-1">Session</label>
                   <select 
                     name="session" 
                     value={form.session} 
                     onChange={handleChange} 
                     required 
-                    className="border p-2 rounded"
+                    className="w-full border p-2 rounded text-sm md:text-base"
                   >
                     <option value="">Select Session</option>
                     {sessions.map((session) => (
@@ -976,152 +451,26 @@ const StudentsReg = () => {
                       </option>
                     ))}
                   </select>
-                  <input 
-                    type="text" 
-                    name="address" 
-                    value={form.address} 
-                    onChange={handleChange} 
-                    placeholder="Address" 
-                    required 
-                    className="border p-2 rounded" 
-                  />
-                  <input 
-                    type="text" 
-                    name="bloodGroup" 
-                    value={form.bloodGroup} 
-                    onChange={handleChange} 
-                    placeholder="Blood Group" 
-                    className="border p-2 rounded" 
-                  />
-                  <input 
-                    type="text" 
-                    name="genotype" 
-                    value={form.genotype} 
-                    onChange={handleChange} 
-                    placeholder="Genotype" 
-                    className="border p-2 rounded" 
-                  />
                 </div>
-              )}
-
-              {/* Step 3: Guardian & Emergency Contact */}
-              {currentStep === 3 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <h3 className="text-lg font-semibold md:col-span-2">
-                    Guardian Information
-                  </h3>
-                  <input 
-                    type="text" 
-                    name="fullName" 
-                    value={form.guardian.fullName} 
-                    onChange={handleGuardianChange} 
-                    placeholder="Guardian's Full Name" 
-                    required 
-                    className="border p-2 rounded" 
-                  />
-                  <input 
-                    type="text" 
-                    name="relationship" 
-                    value={form.guardian.relationship} 
-                    onChange={handleGuardianChange} 
-                    placeholder="Relationship" 
-                    required 
-                    className="border p-2 rounded" 
-                  />
-                  <input 
-                    type="text" 
-                    name="phoneNumber" 
-                    value={form.guardian.phoneNumber} 
-                    onChange={handleGuardianChange} 
-                    placeholder="Guardian's Phone Number" 
-                    required 
-                    className="border p-2 rounded" 
-                  />
-                  <input 
-                    type="text" 
-                    name="address" 
-                    value={form.guardian.address} 
-                    onChange={handleGuardianChange} 
-                    placeholder="Guardian's Address" 
-                    required 
-                    className="border p-2 rounded" 
-                  />
-
-                  <h3 className="text-lg font-semibold md:col-span-2 mt-4">
-                    Emergency Contact
-                  </h3>
-                  <input 
-                    type="text" 
-                    name="name" 
-                    value={form.emergencyContact.name} 
-                    onChange={handleEmergencyContactChange} 
-                    placeholder="Emergency Contact Name" 
-                    required 
-                    className="border p-2 rounded" 
-                  />
-                  <input 
-                    type="text" 
-                    name="phone" 
-                    value={form.emergencyContact.phone} 
-                    onChange={handleEmergencyContactChange} 
-                    placeholder="Emergency Contact Phone" 
-                    required 
-                    className="border p-2 rounded" 
-                  />
-                  <input 
-                    type="text" 
-                    name="relationship" 
-                    value={form.emergencyContact.relationship} 
-                    onChange={handleEmergencyContactChange} 
-                    placeholder="Relationship" 
-                    required 
-                    className="border p-2 rounded" 
-                  />
-                </div>
-              )}
-
-              {/* Navigation Buttons */}
-              <div className="flex justify-between mt-6">
-                {currentStep > 1 ? (
-                  <button 
-                    type="button" 
-                    onClick={() => setCurrentStep(currentStep - 1)}
-                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition"
-                  >
-                    Previous
-                  </button>
-                ) : (
-                  <div></div>
-                )}
-
-                {currentStep < 3 ? (
-                  <button 
-                    type="button" 
-                    onClick={() => setCurrentStep(currentStep + 1)}
-                    className="bg-itccolor text-white px-4 py-2 rounded hover:bg-red-600 transition"
-                  >
-                    Next
-                  </button>
-                ) : (
-                  <button 
-                    type="submit" 
-                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
-                  >
-                    {editId ? "Update" : "Register"}
-                  </button>
-                )}
               </div>
 
-              <div className="flex justify-end mt-4">
+              <div className="flex justify-between mt-6">
                 <button 
                   type="button"
                   onClick={() => {
                     setIsModalOpen(false);
                     resetForm();
                   }} 
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition text-sm md:text-base"
                 >
-                  Close
+                  Cancel
+                </button>
+                
+                <button 
+                  type="submit" 
+                  className="bg-itccolor text-white px-4 py-2 rounded hover:bg-red-800 transition text-sm md:text-base"
+                >
+                  {editId ? "Update" : "Register"}
                 </button>
               </div>
             </form>

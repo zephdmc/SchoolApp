@@ -7,26 +7,34 @@ import {
   FaTh,
   FaUsers,
   FaSignOutAlt,
-  // FaRegCalendarAlt,
+  FaRegCalendarAlt,
   // FaClipboardList,
 } from "react-icons/fa";
 import AuthContext from "../context/AuthContext";
-import Overview from "./TeacherPage/Overall";
+// import Overview from "./TeacherPage/Overall";
 import MyProfile from "./TeacherPage/MyProfile";
 import ResultEntry from "./TeacherPage/recodResult";
 import Settings from "./TeacherPage/Settings";
+import CourseMat from "./TeacherPage/CourseMat";
+import Calendar from "./StudentPage/CalendarEvent";
+import ExamTimetable from "./TeacherPage/ExamTimeTable";
+import ClassTimetable from "./TeacherPage/ClassTimetable";
+
+
 // import AttendanceTable from "./TeacherPage/MyAttendance";
 
 const sections = {
-  Overview: { component: Overview, icon: FaTh },
+  Calendar: { component: Calendar, icon: FaTh },
   "Result Entering": { component: ResultEntry, icon: FaUsers },
-  // "My Attendance": { component: AttendanceTable, icon: FaRegCalendarAlt },
+  "Course Material": { component: CourseMat, icon: FaUsers },
+  "Exam Timtable": { component: ExamTimetable, icon: FaRegCalendarAlt },
+  "Class Timtable": { component: ClassTimetable, icon: FaRegCalendarAlt },
   "My Profile": { component: MyProfile, icon: FaUser },
   Logout: { component: Settings, icon: FaSignOutAlt },
 };
 
 const SAdminDashboard = () => {
-  const [currentSection, setCurrentSection] = useState("Overview");
+  const [currentSection, setCurrentSection] = useState("Calendar");
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const { user } = useContext(AuthContext);

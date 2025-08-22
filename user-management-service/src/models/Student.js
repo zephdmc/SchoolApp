@@ -1,30 +1,30 @@
 const mongoose = require('mongoose');
-
+// In user-management-service/src/models/student.js
 const studentSchema = new mongoose.Schema({
   studentID: {
     type: String,
     required: true,
-    unique: true
+    // unique: true
   },
   firstName: {
     type: String,
-    required: true
+    // required: true
   },
   lastName: {
     type: String,
-    required: true
+    // required: true
   },
   middleName: {
     type: String
   },
   gender: {
     type: String,
-    required: true,
+    // required: true,
     enum: ['Male', 'Female']
   },
   dateOfBirth: {
     type: Date,
-    required: true
+    // required: true
   },
   nationality: {
     type: String,
@@ -32,19 +32,19 @@ const studentSchema = new mongoose.Schema({
   },
   stateOfOrigin: {
     type: String,
-    required: true
+    // required: true
   },
   lgaOfOrigin: {
     type: String,
-    required: true
+    // required: true
   },
   address: {
     type: String,
-    required: true
+    // required: true
   },
   phoneNumber: {
     type: String,
-    required: true
+    // required: true
   },
   email: {
     type: String
@@ -61,26 +61,26 @@ const studentSchema = new mongoose.Schema({
   },
   section: {
     type: String,
-    required: true
+    // required: true
 
     // enum: ['Science', 'Arts', 'Commercial']
   },
   guardian: {
     fullName: {
       type: String,
-      required: true
+      // required: true
     },
     relationship: {
       type: String,
-      required: true
+      // required: true
     },
     phoneNumber: {
       type: String,
-      required: true
+      // required: true
     },
     address: {
       type: String,
-      required: true
+      // required: true
     }
   },
   admissionDate: {

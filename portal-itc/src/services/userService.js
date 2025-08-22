@@ -21,6 +21,18 @@ export const updateUserProfile = async (token, updateData) => {
   return response.data;
 };
 
+export const adminUpdateUser = async (token, userId, updateData) => {
+  const response = await fetch(`/user/api/users/admin/${userId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(updateData)
+  });
+  return await response.json();
+};
+
 export const getAllUsers = async (token) => {
   // const response = await axios.get(`${API_URL}/api/users/all`, {
     const response = await axios.get(`/user/api/users/all`, {

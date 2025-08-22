@@ -9,6 +9,7 @@ const getUserById = async (userId) => {
 };
 
 const updateUser = async (userId, updateData) => {
+    console.log(userId,'er')
     const user = await User.findById(userId);
 
     if (!user) {

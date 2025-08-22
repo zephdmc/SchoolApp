@@ -107,7 +107,7 @@ const TermManagementPage = () => {
         <input
           type="text"
           name="name"
-          placeholder="Class Name"
+          placeholder="Term Name"
           value={formData.name}
           onChange={handleInputChange}
           className="border p-2 mr-2"

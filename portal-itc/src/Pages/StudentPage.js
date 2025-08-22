@@ -1,34 +1,49 @@
 import { useState, useContext } from 'react';
 import {
   FaBars, FaTimes, FaUser, FaUserCircle, FaSignOutAlt,
-  FaTh, FaUsers, FaCar, FaFileAlt
+  FaTh, FaUsers, FaCar, FaFileAlt, FaChevronDown, FaChevronUp
 } from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
-import ManageResult from '../Pages/StudentPage/ManageResult';
-import Overview from '../Pages/StudentPage/Overview';
+// import ManageResult from '../Pages/StudentPage/ManageResult';
+// import Overview from '../Pages/StudentPage/Overview';
+import MyWallet from '../Pages/StudentPage/MyWallet';
 import MyProfile from '../Pages/StudentPage/MyProfile';
 import Settings from '../Pages/StudentPage/Settings';
 import ResultChecker from '../Pages/StudentPage/ResultChecker';
 import StudentPayments from './StudentPage/ManageBursery';
+import Timetable from './StudentPage/MyTimeTable';
+import ExamTimetable from './StudentPage/My ExamTimeTable';
+import CalendarEvent from './StudentPage/CalendarEvent';
+import Library from './StudentPage/library';
 
 const sections = {
-  'Overview': { component: Overview, icon: FaTh },
-  'Result Checker': { component: ResultChecker, icon: FaFileAlt },
-  'Result': { component: ManageResult, icon: FaUsers },
-  'Bursery': { component: StudentPayments, icon: FaUsers },
+  'Overview': { component: CalendarEvent, icon: FaTh },
   'My Profile': { component: MyProfile, icon: FaUser },
+  'Result Checker': { component: ResultChecker, icon: FaFileAlt },
+  // 'Result': { component: ManageResult, icon: FaUsers },
+  'Bursery': { component: StudentPayments, icon: FaUsers },
+  'My Wallet': { component: MyWallet, icon: FaUsers },
+  // 'Calendar Event': { component: CalendarEvent, icon: FaUser },
+  'E-Materials': { component: Library, icon: FaUser },
   'Logout': { component: Settings, icon: FaSignOutAlt },
+};
+
+const timetableSections = {
+  'My Timetable': { component: Timetable, icon: FaFileAlt },
+  'My Exam Timetable': { component: ExamTimetable, icon: FaFileAlt },
 };
 
 const SAdminDashboard = () => {
   const [currentSection, setCurrentSection] = useState('Overview');
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [isTimetableOpen, setTimetableOpen] = useState(false);
   const { user } = useContext(AuthContext);
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
+  const toggleTimetableDropdown = () => setTimetableOpen(!isTimetableOpen);
 
-  const CurrentComponent = sections[currentSection].component;
+  const CurrentComponent = sections[currentSection]?.component || timetableSections[currentSection]?.component;
 
   return (
     <div className={`${darkMode ? 'dark' : ''}`}>
@@ -48,6 +63,7 @@ const SAdminDashboard = () => {
           </div>
           <nav className="mt-4 space-y-1 px-4">
             {Object.keys(sections).map((section) => {
+              if (section === 'Logout') return null; // Optional: Move logout to bottom
               const Icon = sections[section].icon;
               return (
                 <button
@@ -63,6 +79,53 @@ const SAdminDashboard = () => {
                 </button>
               );
             })}
+
+            {/* Dropdown for Timetable */}
+            <div className="mb-2">
+              <button
+                onClick={toggleTimetableDropdown}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-itccolor hover:text-white transition-all duration-200 ${currentSection === 'My Timetable' || currentSection === 'My Exam Timetable' ? 'bg-itccolor text-white' : 'dark:text-white text-gray-700'}`}
+              >
+                <div className="flex items-center space-x-3">
+                  <FaFileAlt />
+                  <span className="text-sm font-medium">My Time Table</span>
+                </div>
+                {isTimetableOpen ? <FaChevronUp size={14} /> : <FaChevronDown size={14} />}
+              </button>
+
+              {isTimetableOpen && (
+                <div className="ml-6 mt-1 space-y-1">
+                  {Object.keys(timetableSections).map((section) => {
+                    const Icon = timetableSections[section].icon;
+                    return (
+                      <button
+                        key={section}
+                        onClick={() => {
+                          setCurrentSection(section);
+                          setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-itccolor hover:text-white transition-all duration-200 ${currentSection === section ? 'bg-itccolor text-white' : 'dark:text-white text-gray-700'}`}
+                      >
+                        <Icon />
+                        <span className="text-sm font-medium">{section}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Logout Button (Moved to bottom) */}
+            <button
+              onClick={() => {
+                setCurrentSection('Logout');
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-itccolor hover:text-white transition-all duration-200 ${currentSection === 'Logout' ? 'bg-itccolor text-white' : 'dark:text-white text-gray-700'}`}
+            >
+              <FaSignOutAlt />
+              <span className="text-sm font-medium">Logout</span>
+            </button>
           </nav>
 
           {/* Dark Mode Toggle */}

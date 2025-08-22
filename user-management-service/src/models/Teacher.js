@@ -8,23 +8,19 @@ const teacherSchema = new mongoose.Schema({
   },
   firstName: {
     type: String,
-    required: true
   },
   lastName: {
     type: String,
-    required: true
   },
   middleName: {
     type: String
   },
   gender: {
     type: String,
-    required: true,
     enum: ['Male', 'Female']
   },
   dateOfBirth: {
     type: Date,
-    required: true
   },
   nationality: {
     type: String,
@@ -32,72 +28,55 @@ const teacherSchema = new mongoose.Schema({
   },
   stateOfOrigin: {
     type: String,
-    required: true
   },
   lgaOfOrigin: {
     type: String,
-    required: true
   },
   address: {
     type: String,
-    required: true
   },
   phoneNumber: {
     type: String,
-    required: true
   },
   email: {
     type: String,
-    unique: true
   },
   staffNumber: {
     type: String,
-    required: true,
-    unique: true
   },
   higherQualification: {
     type: String,
-    required: true
   },
   employmentType: {
     type: String,
-    required: true,
     enum: ['fullTime', 'partTime', 'Contract']
   },
   bankname: {
     type: String,
-    required: true
   },
   accountNumber: {
     type: String,
-    required: true
   },
   NIN: {
     type: String,
-    required: true,
     unique: true
   },
   section: {
     type: String,
-    required: true
     // enum: ['Science', 'Arts', 'Commercial']
   },
   guardian: {
     fullName: {
       type: String,
-      required: true
     },
     relationship: {
       type: String,
-      required: true
     },
     phoneNumber: {
       type: String,
-      required: true
     },
     address: {
       type: String,
-      required: true
     }
   },
   admissionDate: {
@@ -127,7 +106,6 @@ const teacherSchema = new mongoose.Schema({
   },
   session: {
     type: String,
-    required: true
   }
 }, { timestamps: true });
 

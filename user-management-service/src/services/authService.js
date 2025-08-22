@@ -8,7 +8,7 @@ const generateToken = (userId) => {
 
 const registerUser = async (userData) => {
     const { username, email, password } = userData;
-    const userExists = await User.findOne({ email }, "re");
+    const userExists = await User.findOne({ email });
 
     if (userExists) {
         throw new Error('User already exists');

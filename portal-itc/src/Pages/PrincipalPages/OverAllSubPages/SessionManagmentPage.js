@@ -3,7 +3,7 @@ import {
   getAllSessions,
   createSession,
   updateSession,
-  deleteSession,
+  // deleteSession,
 } from '../../../services/SessionService';
 
 const SessionManagementPage = () => {
@@ -71,15 +71,15 @@ const SessionManagementPage = () => {
     });
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await deleteSession(id);
-      fetchSessions();
-      showSuccessMessage('Session deleted successfully!');
-    } catch (error) {
-      console.error('Error deleting session:', error);
-    }
-  };
+  // const handleDelete = async (id) => {
+  //   try {
+  //     await deleteSession(id);
+  //     fetchSessions();
+  //     showSuccessMessage('Session deleted successfully!');
+  //   } catch (error) {
+  //     console.error('Error deleting session:', error);
+  //   }
+  // };
 
   return (
     <div className="p-4">
@@ -162,12 +162,12 @@ const SessionManagementPage = () => {
                 >
                   Edit
                 </button>
-                <button
+                {/* <button
                   onClick={() => handleDelete(session._id)}
                   className="bg-red-500 text-white px-2 py-1 rounded"
                 >
                   Delete
-                </button>
+                </button> */}
               </td>
             </tr>
           ))}

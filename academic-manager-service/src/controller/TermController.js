@@ -21,29 +21,32 @@ exports.getTerms = async (req, res) => {
 
 // Update an existing Term
 exports.updateTerm = async (req, res) => {
-    const { id } = req.params;
-    const updatedData = req.body;
-    try {
-      const updatedTerm = await TermService.updateTerm (id, updatedData);
-      if (!updatedClass) {
-        return res.status(404).json({ message: 'Term not found' });
+  const { id } = req.params;
+  const updatedData = req.body;
+  
+  try {
+      const updatedTerm = await termService.updateTerm(id, updatedData);
+      if (!updatedTerm) {  // Fixed variable name from updatedClass
+          return res.status(404).json({ message: 'Term not found' });
       }
       res.status(200).json({ message: 'Term updated successfully', updatedTerm });
-    } catch (error) {
+  } catch (error) {
       res.status(500).json({ error: error.message });
-    }
-  };
+  }
+};
+
   
   // Delete a class
-  exports.deleteTerm = async (req, res) => {
-    const { id } = req.params;
-    try {
+// Delete a term
+exports.deleteTerm = async (req, res) => {
+  const { id } = req.params;
+  try {
       const deletedTerm = await termService.deleteTerm(id);
       if (!deletedTerm) {
-        return res.status(404).json({ message: 'Term not found' });
+          return res.status(404).json({ message: 'Term not found' });
       }
       res.status(200).json({ message: 'Term deleted successfully' });
-    } catch (error) {
+  } catch (error) {
       res.status(500).json({ error: error.message });
-    }
-  };
+  }
+};

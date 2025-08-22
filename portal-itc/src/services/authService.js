@@ -6,7 +6,7 @@ export const login = async (email, password) => {
   const response = await axios.post(`/user/api/auth/login`, { email, password });
   if (response.data.token) {
       localStorage.setItem('user', JSON.stringify(response.data));
-        // Redirect based on role
+       // Redirect based on role
     }
     console.log(response)
   return response.data;

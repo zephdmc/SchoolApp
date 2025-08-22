@@ -1,7 +1,4 @@
 
-
-
-
 // mainserver.js
 const http = require('http'); // Change to http for local testing
 const express = require('express');
@@ -16,7 +13,7 @@ app.use(express.json());
 
 // Connect to the database
 connectDB();
-
+require('./payment-model-service/src/services/cronjobs');
 // Serve static frontend files
 app.use('/', express.static(path.join(__dirname, './frontend-itc/build')));
 app.use('/portal', express.static(path.join(__dirname, './portal-itc/build')));
@@ -52,7 +49,7 @@ app.get('/portal/*', (req, res) => {
 });
 
 // Start HTTP server for local development
-const port = 5003; // You can use any available port for local testing
+const port = 5007; // You can use any available port for local testing
 const httpServer = http.createServer(app);
 httpServer.listen(port, '0.0.0.0', () => {
     console.log(`Server is running on port ${port}`);

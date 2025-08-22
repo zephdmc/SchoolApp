@@ -6,6 +6,8 @@ const axios = require("axios");
 exports.getResults = async (req, res) => {
   try {
     const { class: classSelected, subject } = req.query;
+
+
     const results = await Result.find({ class: classSelected, subject }).populate("student_id", "first_name last_name");
     res.status(200).json(results);
   } catch (error) {
@@ -33,6 +35,7 @@ exports.getResultsByClassAndSubject = async (req, res) => {
     const { classSelected, subject } = req.query;
 
 
+
     if (!classSelected || !subject) {
       return res.status(407).json({ message: "Class and subject are required" });
     }
@@ -45,7 +48,7 @@ exports.getResultsByClassAndSubject = async (req, res) => {
     // Extract student IDs from results
     const studentID = results.map(result => result.student_id);
     // Call Users Microservice to fetch student details
-    const userServiceURL = process.env.USER_SERVICE_URL || "http://localhost:5003/user/api/student/student-by-ids";
+    const userServiceURL = process.env.USER_SERVICE_URL || "http://localhost:5007/user/api/student/student-by-ids";
     let studentMap = {}; // Default empty object
     try {
       const studentResponse = await axios.post(userServiceURL, { studentIds: studentID});
@@ -193,7 +196,7 @@ exports.getPendingResults = async (req, res) => {
         // Extract student IDs
         const studentIDs = pendingResults.map(result => result.student_id);
         // Fetch student details from User Microservice
-        const userServiceURL = process.env.USER_SERVICE_URL || "http://localhost:5003/user/api/student/student-by-ids";
+        const userServiceURL = process.env.USER_SERVICE_URL || "http://localhost:5007/user/api/student/student-by-ids";
         let studentMap = {}; // Default empty object
         try {
             const studentResponse = await axios.post(userServiceURL, { studentIds: studentIDs });
@@ -270,62 +273,149 @@ exports.updateResultsStatus = async (req, res) => {
     }
 };
 
+// Add this to your controller (examRecord.js)
+exports.updateSingleResultStatus = async (req, res) => {
+  try {
+      const { studentId, termId, classSelected, status } = req.body;
+      console.log(studentId,'djd')
+      if (!studentId || !termId || !classSelected || !status) {
+          return res.status(400).json({ error: 'Missing required fields' });
+      }
+
+      const updated = await Result.updateMany(
+          { 
+              student_id: studentId, 
+              term_id: termId, 
+              classSelected: classSelected 
+          },
+          { $set: { status: status } }
+      );
+
+      if (updated.modifiedCount === 0) {
+          return res.status(404).json({ message: 'No matching results found' });
+      }
+
+      res.json({
+          message: 'Student results updated successfully',
+          updatedCount: updated.modifiedCount,
+      });
+  } catch (error) {
+      console.error('Error updating student results:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 
 
-// exports.getStudentResult = async (req, res) => {
-//   try {
-//       const { applicationNumber, classSelected, termSelected } = req.body;
+// Add this new controller method
+exports.getStudentPendingResults = async (req, res) => {
+  try {
+      const { studentId, termId, classId } = req.params;
+      
+      // Fetch all pending results for the student
+      const results = await Result.find({
+          student_id: studentId,
+          term_id: termId,
+          classSelected: classId,
+          status: "pending"
+      });
 
-//       // Find student by admissionNumber
-//       const student = await Student.findOne({ admissionNumber: applicationNumber });
-//       if (!student) {
-//           return res.status(404).json({ message: 'Student not found' });
-//       }
+      if (!results.length) {
+          return res.status(404).json({ message: 'No pending results found for this student.' });
+      }
 
-//       // Find results
-//       const results = await Result.find({
-//           student_id: student.studentID,
-//           classSelected,
-//           term_id: termSelected
-//       });
+      // Get student details
+      const userServiceURL = process.env.USER_SERVICE_URL || "http://localhost:5007/user/api/student/student-by-ids";
+      const studentResponse = await axios.post(userServiceURL, { studentIds: [studentId] });
+      const student = studentResponse.data[0] || {};
 
-//       if (results.length === 0) {
-//           return res.status(404).json({ message: 'No results found for this term' });
-//       }
+      res.status(200).json({
+          student: {
+              name: `${student.firstName || ''} ${student.lastName || ''}`.trim(),
+              admissionNumber: student.admissionNumber,
+              ...student
+          },
+          results
+      });
 
-//       // Calculate totals
-//       const totalScore = results.reduce((sum, result) => sum + result.total_score, 0);
-//       const grade = calculateGrade(totalScore); // Implement your grade calculation logic
-//       const comment = getComment(grade); // Implement your comment logic
+  } catch (error) {
+      console.error('Error fetching student pending results:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+};
 
-//       res.json({
-//           results,
-//           totalScore,
-//           grade,
-//           comment
-//       });
+// Update this existing method to handle subject-level approval
+exports.updateSingleResultStatus = async (req, res) => {
+  try {
+      const { resultId, status } = req.body;
 
-//   } catch (error) {
-//       res.status(500).json({ message: error.message });
-//   }
-// };
+      if (!resultId || !status) {
+          return res.status(400).json({ error: 'Missing required fields' });
+      }
 
-// // Example grade calculation (customize according to your needs)
-// function calculateGrade(score) {
-//   if (score >= 90) return 'A+';
-//   if (score >= 80) return 'A';
-//   if (score >= 70) return 'B';
-//   if (score >= 60) return 'C';
-//   return 'F';
-// }
+      const updated = await Result.findByIdAndUpdate(
+          resultId,
+          { $set: { status: status } },
+          { new: true }
+      );
 
-// function getComment(grade) {
-//   const comments = {
-//       'A+': 'Excellent performance',
-//       'A': 'Very good performance',
-//       'B': 'Good performance',
-//       'C': 'Average performance',
-//       'F': 'Needs improvement'
-//   };
-//   return comments[grade] || 'No comment available';
-// }
+      if (!updated) {
+          return res.status(404).json({ message: 'Result not found' });
+      }
+
+      res.json({
+          message: 'Result updated successfully',
+          updatedResult: updated
+      });
+  } catch (error) {
+      console.error('Error updating result:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
+exports.getAllStudentsInClass = async (req, res) => {
+  try {
+    const { classId } = req.params;
+    const { term_id } = req.query;
+    
+    // Ensure USER_SERVICE_URL is properly set
+    const userServiceBase = process.env.USER_SERVICE_URL || 'http://localhost:5007/user';
+    const userServiceURL = `${userServiceBase}/api/students/class/${classId}`;
+    
+    const response = await axios.get(userServiceURL);
+    const students = Array.isArray(response.data) ? response.data : [];
+
+    if (term_id) {
+      const studentsWithStatus = await Promise.all(
+        students.map(async (student) => {
+          const results = await Result.find({
+            student_id: student.studentID || student._id,
+            term_id,
+            classSelected: classId
+          });
+
+          return {
+            ...student,
+            name: `${student.firstName || ''} ${student.lastName || ''}`.trim(),
+            status: results.length
+              ? (results.every(r => r.status === 'approved') ? 'approved' : 'pending')
+              : 'no-results'
+          };
+        })
+      );
+      return res.status(200).json(studentsWithStatus);
+    }
+
+    res.status(200).json(
+      students.map(student => ({
+        ...student,
+        name: `${student.firstName || ''} ${student.lastName || ''}`.trim(),
+        status: 'unknown'
+      }))
+    );
+
+  } catch (error) {
+    console.error('Error fetching students:', error);
+    res.status(500).json([]);
+  }
+};

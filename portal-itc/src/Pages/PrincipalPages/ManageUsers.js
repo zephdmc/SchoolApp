@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { FaPlus, FaSearch } from 'react-icons/fa';
-import { getAllUsers, deleteUser, updateUserProfile } from '../../services/userService';
+import { getAllUsers, deleteUser, adminUpdateUser } from '../../services/userService';
 import { register } from '../../services/authService';
 import AuthContext from '../../context/AuthContext';
 const ManageUsers = () => {
@@ -53,15 +53,21 @@ const ManageUsers = () => {
 
        // Handle the user update logic here
        const handleUpdateUser = async (updateData) => {
-        try {
-          await updateUserProfile(user.token, updateData);
-          setUsers(users.map(u => u._id === currentUser._id ? {...u, ...updateData} : u));
-          setEditUserModalOpen(false);
-          alert('User successfully updated!');
+         try {
+          // if (updateData.password && updateData.password !== e.target.confirmPassword.value) {
+          //   toast.error("Passwords don't match");
+          //   return;
+          // }
+            // Use adminUpdateUser instead of updateUserProfile
+            await adminUpdateUser(user.token, currentUser._id, updateData);
+            setUsers(users.map(u => u._id === currentUser._id ? {...u, ...updateData} : u));
+            setEditUserModalOpen(false);
+            alert('User successfully updated!');
         } catch (error) {
-          console.error('Failed to update user:', error);
+            console.error('Failed to update user:', error);
+            alert('Failed to update user: ' + error.message);
         }
-      };
+    };
       
 
 
@@ -345,6 +351,7 @@ const ManageUsers = () => {
               <div className="mb-4">
                 <strong>Terminal:</strong> {currentUser.terminal}
               </div>
+              
               <div className="flex justify-end">
                 <button
                   onClick={() => setViewUserModalOpen(false)}
@@ -370,7 +377,8 @@ const ManageUsers = () => {
                   username: e.target.username.value,
                   email: e.target.email.value,
                   role: e.target.role.value,
-                  terminal: e.target.terminal.value,
+                  // terminal: e.target.terminal.value,
+                  password: e.target.password.value, // Fixed this line
                 };
                 // Handle the user update logic here
                 handleUpdateUser(updateData);
@@ -399,17 +407,31 @@ const ManageUsers = () => {
                   defaultValue={currentUser.role}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md"
                 >
+                   <option value="">Select Role</option>
                   <option value="admin">Admin</option>
                   <option value="user">User</option>
+                  <option value="teacher">Teacher</option>
+                  <option value="student">Student</option>
+
                 </select>
               </div>
+            
               <div className="mt-4">
-                <input
-                  name="terminal"
-                  type="text"
-                  defaultValue={currentUser.terminal}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+          <input
+            name="password"
+            type="password"
+            placeholder="New Password (leave blank to keep current)"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md"
                 />
+                <div className="mt-4">
+  {/* <input
+    name="confirmPassword"
+    type="password"
+    placeholder="Confirm New Password"
+    className="w-full px-4 py-2 border border-gray-300 rounded-md"
+  /> */}
+</div>
+              
               </div>
               <div className="flex justify-end mt-6 space-x-4">
                 <button

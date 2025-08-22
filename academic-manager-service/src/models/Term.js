@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const TermSchema = new mongoose.Schema({
-    name: { type: String, required: true, unique: true },
+    name: { type: String, required: true},
     description: { type: String },
     session: { type: String },
     createdAt: { type: Date, default: Date.now },

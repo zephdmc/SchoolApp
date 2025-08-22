@@ -31,7 +31,10 @@ module.exports = {
     // }
     extend: {
       colors: {
-        'itccolor': '#651629',
+        'itccolor': '#1e3a8a',
+      },
+      fontFamily: {
+        poppins: ['Poppins', 'sans-serif'],
       },
       keyframes: {
         'fade-in-up': {

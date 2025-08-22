@@ -92,5 +92,55 @@ export const fetchResults = async (data) => {
     return response.data;
 };
 
+// Add this to your service file
+export const updateSingleResultStatus = async (studentId, termId, classId, status) => {
+  try {
+      
+    const response = await axios.put(`${API_BASE_URL}/update-single-status`, {
+          studentId,
+          termId,
+          classId,
+          status
+      });
+      return response.data;
+  } catch (error) {
+      throw error.response?.data || error;
+  }
+};
 
+// Add these new service methods
+export const fetchStudentPendingResults = async (studentId, termId, classId) => {
+  try {
+      const response = await axios.get(`${API_BASE_URL}/student/${studentId}/pending/term/${termId}/class/${classId}`);
+      return response.data;
+  } catch (error) {
+      console.error('Error fetching student pending results:', error);
+      throw error;
+  }
+};
 
+export const updateSubjectResultStatus = async (resultId, status) => {
+  try {
+      const response = await axios.put(`${API_BASE_URL}/update-result-status`, {
+          resultId,
+          status
+      });
+      return response.data;
+  } catch (error) {
+      throw error.response?.data || error;
+  }
+};
+
+export const fetchAllStudentsInClass = async (classId, termId = null) => {
+  try {
+      const params = termId ? { termId } : {};
+      // Change this line to use the correct endpoint
+      const response = await axios.get(`${API_BASE_URL}/class/${classId}/students`, { 
+        params: { term_id: termId } // Match the backend expected param name
+      });
+      return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+      console.error('Error fetching students in class:', error);
+      return []; // Return empty array on error
+  }
+};

@@ -51,7 +51,7 @@ const Navbar = () => {
             <a href="/Contact" className="block my-2 text-itccolor font-bold lg:inline-block hover:border-b-2 border-itccolor lg:mt-0 mx-2 py-2 hover:text-gray-400">Contact</a>
             <a href="/Bookings" className="block my-2 text-itccolor font-bold lg:inline-block hover:border-b-2 border-itccolor lg:mt-0 mx-2 py-2 hover:text-gray-400">Bookings</a>
           </div> */}
-          <a href="/" className="bg-itccolor rounded-md hover:bg-gray-400 px-2 py-[2px] md:px-4 md:py-2 text-sm md:text-md ml-[1px] md:ml-0 text-white">Home</a>
+          <a href="/portal" className="bg-itccolor rounded-md hover:bg-gray-400 px-2 py-[2px] md:px-4 md:py-2 text-sm md:text-md ml-[1px] md:ml-0 text-white">Home</a>
         </div>
       </nav>
     </>

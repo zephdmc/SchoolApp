@@ -81,15 +81,15 @@ const ClassManagementPage = () => {
     });
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await deleteClass(id);
-      fetchClasses();
-      showSuccessMessage('Class deleted successfully!');
-    } catch (error) {
-      console.error('Error deleting class:', error);
-    }
-  };
+  // const handleDelete = async (id) => {
+  //   try {
+  //     await deleteClass(id);
+  //     fetchClasses();
+  //     showSuccessMessage('Class deleted successfully!');
+  //   } catch (error) {
+  //     console.error('Error deleting class:', error);
+  //   }
+  // };
 
   return (
     <div className="p-4">
@@ -170,12 +170,12 @@ const ClassManagementPage = () => {
                 >
                   Edit
                 </button>
-                <button
+                {/* <button
                   onClick={() => handleDelete(cls._id)}
                   className="bg-red-500 text-white px-2 py-1 rounded"
                 >
                   Delete
-                </button>
+                </button> */}
               </td>
             </tr>
           ))}

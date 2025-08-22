@@ -26,10 +26,10 @@ const getAllPayments = async () => {
   return response.data;
 };
 
-const getStudentPaymentsDue = async (userId) => {
-  const response = await axios.get(`${API_URL}/due/${userId}`);
-  return response.data;
-};
+// const getStudentPaymentsDue = async (userId, level) => {
+//   const response = await axios.get(`${API_URL}/due/${userId}?level=${level}`);
+//   return response.data;
+// };
 
 const initiatePayment = async (paymentTypeIds, userId) => {
 
@@ -47,6 +47,55 @@ const getStudentPaidPayments = async (studentId) => {
   return res.data;
 };
 
+const getPaymentStatusForTypes = async () => {
+  const response = await axios.get(`${API_URL}/status`);
+  return response.data;
+};
+
+const deletePaymentType = async (id) => {
+  const response = await axios.delete(`${API_URL}/${id}`);
+  return response.data;
+};
+const updatePaymentType = async (id, paymentTypeData) => {
+  const response = await axios.put(`${API_URL}/${id}`, paymentTypeData);
+  return response.data;
+};
+
+const getStudentOutstandingPayments = async (studentId) => {
+  try {
+    const response = await axios.get(`/fee/api/fee/outstanding/${studentId}`);
+    console.log(response.data.data);
+    return response.data.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+
+export const getStudentPaymentsDue = async (studentId, levelId) => {
+  try {
+    const response = await axios.get(`/fee/api/fee/due/${studentId}`, {
+      params: { level: levelId }
+    });
+    return response.data || [];
+  } catch (error) {
+    console.error('Payment service error:', error);
+    return [];
+  }
+};
+
+
+export const checkOutstandingPayments = async (studentId, classId, termId) => {
+    try {
+        const response = await axios.get(`${API_URL}/outstandingPayment/${studentId}`, {
+            params: { classId, termId }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error checking outstanding payments:', error);
+        throw error;
+    }
+};
 
 const paymentService = {
   createPaymentType,
@@ -55,7 +104,12 @@ const paymentService = {
   getStudentPaymentsDue,
   initiatePayment,
   verifyPayment,
-  getStudentPaidPayments
+  getStudentPaidPayments,
+  getPaymentStatusForTypes,
+  deletePaymentType,
+  updatePaymentType,
+  getStudentOutstandingPayments,
+  checkOutstandingPayments
 };
 
 export default paymentService;

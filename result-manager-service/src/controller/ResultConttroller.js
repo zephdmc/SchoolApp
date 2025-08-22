@@ -4,6 +4,8 @@ const Student = require('../models/Student');
 // Fetch students & check if results exist
 const fetchStudentsOrResults = async (req, res) => {
     const { classId, subjectId, sessionId } = req.query;
+
+    console.log(classId, 'Resolve It now ')
     
     try {
         const existingResults = await Result.find({ classId, subjectId, sessionId }).populate('studentId');

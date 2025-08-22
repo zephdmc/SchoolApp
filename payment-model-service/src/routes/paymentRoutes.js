@@ -7,7 +7,13 @@ const {
   initiatePayment,
   verifyPayment,
   getStudentPaymentStatus, // <- Add this
-  getStudentPayments
+  getStudentPayments,
+  getPaymentStatusForTypes,
+  updatePaymentType,
+  deletePaymentType,
+  getStudentOutstandingPayments,
+  processOverduePayments,
+  outstanding
 } = require('../controller/paymentController');
 
 const router = express.Router();
@@ -23,6 +29,30 @@ router.get('/due/:id', getStudentPaymentsDue);
 router.post('/initiate', initiatePayment);
 router.get('/verify/:reference', verifyPayment);
 router.get('/payments/status/:studentID/:class', getStudentPayments);
-
-
+router.get('/status', getPaymentStatusForTypes);
+router.put('/:id', updatePaymentType);
+router.delete('/:id', deletePaymentType);
+router.get('/process-overdue', processOverduePayments);
+router.get('/outstandingPayment/:studentId', outstanding);
+router.get('/outstanding/:studentId', getStudentOutstandingPayments);
 module.exports = router;
+
+
+
+
+
+
+
+
+// // Admin routes
+// router.post('/types', authMiddleware, adminMiddleware, paymentController.createPaymentType);
+// router.get('/types', authMiddleware, adminMiddleware, paymentController.getPaymentTypes);
+// router.get('/all', authMiddleware, adminMiddleware, paymentController.getAllPayments);
+
+// // Student routes
+// router.get('/due/:id', authMiddleware, paymentController.getStudentPaymentsDue);
+// router.post('/initiate', authMiddleware, paymentController.initiatePayment);
+// router.get('/verify/:reference', authMiddleware, paymentController.verifyPayment);
+// router.get('/status/:studentId', authMiddleware, paymentController.getStudentPaymentStatus);
+// router.get('/student/:studentID/:class', authMiddleware, paymentController.getStudentPayments);
+

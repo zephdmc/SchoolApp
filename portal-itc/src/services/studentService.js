@@ -29,7 +29,6 @@ export const deleteStudent = async (id) => {
 
 // Fetch students by class
 export const getStudentsByClass = async (className) => {
-  console.log(className)
   const response = await axios.get(`${API_URL}/class/${className}`);
   return response.data
 };
@@ -43,6 +42,17 @@ export const fetchStudentByID = async (studentID) => {
         throw error;
     }
 };
+
+
+// export const getStudentsByClass = async (classId) => {
+//   try {
+//     const response = await axios.get(`/user/api/student/class/${classId}`);
+//     return Array.isArray(response.data) ? response.data : [];
+//   } catch (error) {
+//     console.error('Error fetching students by class:', error);
+//     return [];
+//   }
+// };
 
 export const getStudentByAdmission = async (admissionNumber) => {
   try {

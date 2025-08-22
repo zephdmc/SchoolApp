@@ -34,7 +34,7 @@ const SubjectManagementPage = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       const data = await getAllTeachers();
-      console.log(data)
+      console.log(data.data)
       setUsers(data.data);
     };
 
@@ -270,8 +270,8 @@ const SubjectManagementPage = () => {
                   </td>
                   <td className="border p-2">
                 {/* {users?.find((s) => s._id === cls.teacher)?.username || 'N/A'} */}
+  {Array.isArray(users) ? users.find((s) => s.teacherID === cls.teacher)?.firstName || 'N/A' : 'N/A'}
 
-                {Array.isArray(users) ? users.find((s) => s._id === cls.teacher)?.staffNumber || 'N/A' : 'N/A'}
               </td>
               <td className="border p-2">
                 {terms?.find((s) => s._id === cls.term)?.name || 'N/A'}

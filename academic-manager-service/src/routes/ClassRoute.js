@@ -1,12 +1,12 @@
 const express = require('express');
-const { createClass, getClasses, updateClass, deleteClass } = require('../controller/ClassController');
+const { createClass, getClasses,getClassById, updateClass, deleteClass } = require('../controller/ClassController');
 // const authMiddleware = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
 router.post('/', createClass);
 router.get('/', getClasses);
-
+router.get('/:id', getClassById);
 // Update an existing class
 router.put('/:id', updateClass);
 

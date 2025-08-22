@@ -17,6 +17,13 @@ export const getTeacherById = async (id) => {
   return await axios.get(`${API_URL}/${id}`);
 };
 
+// Get student by ID
+export const getTeacherByID = async (teacherId) => {
+  console.log(teacherId, 'API')
+  return await axios.get(`${API_URL}/teacher/${teacherId}`);
+};
+
+
 // Update student
 export const updateTeacher = async (id, teacherData) => {
   return await axios.put(`${API_URL}/${id}`, teacherData);
@@ -26,3 +33,6 @@ export const updateTeacher = async (id, teacherData) => {
 export const deleteTeacher = async (id) => {
   return await axios.delete(`${API_URL}/${id}`);
 };
+
+
+

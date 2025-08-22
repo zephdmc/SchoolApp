@@ -1,39 +1,51 @@
 import { useState, useContext } from 'react';
 import {
   FaBars, FaTimes, FaUser, FaUserCircle, FaSignOutAlt,
-  FaCalendarAlt, FaUsers, FaChalkboardTeacher, FaFileAlt, FaUserCog
+  FaCalendarAlt, FaUsers, FaChalkboardTeacher, FaFileAlt, FaUserCog, FaChevronDown, FaChevronUp
 } from 'react-icons/fa';
+import TimelineItem from '../Pages/PrincipalPages/TmetableManagement';
+import manageTimetable from '../Pages/PrincipalPages/ExamTimetable';
 import AuthContext from '../context/AuthContext';
 import ManageUsers from '../Pages/PrincipalPages/Overall';
 import ManageResults from '../Pages/PrincipalPages/OverAllSubPages/ApproveResult';
 import ManagePortal from '../Pages/PrincipalPages/ManageUsers';
-import MyProfile from '../Pages/PrincipalPages/MyProfile';
 import TeacherReg from '../Pages/PrincipalPages/teacherRegistration';
+import WalletManager from '../Pages/PrincipalPages/WalletManager';
 import Settings from '../Pages/PrincipalPages/Settings';
 import StudentsReg from '../Pages/PrincipalPages/studentRegistation';
 import Account from '../Pages/PrincipalPages/ManagePayment';
-import PaymentVerification  from '../Pages/PrincipalPages/VerifyPaymentStatus';
+import PaymentVerification from '../Pages/PrincipalPages/VerifyPaymentStatus';
+import CalendarEvent from '../Pages/PrincipalPages/CalendarEvent';
+
 const sections = {
   'Academic Setup': { component: ManageUsers, icon: FaCalendarAlt },
   'Students Manager': { component: StudentsReg, icon: FaUsers },
   'Teachers Manager': { component: TeacherReg, icon: FaChalkboardTeacher },
   'Manage Results': { component: ManageResults, icon: FaFileAlt },
   'Manage Accounts': { component: Account, icon: FaFileAlt },
+  'Calendar Event': { component: CalendarEvent, icon: FaFileAlt },
+  'Wallet Manager': { component: WalletManager, icon: FaFileAlt },
   'Payment Verification': { component: PaymentVerification, icon: FaFileAlt },
   'Portal Users': { component: ManagePortal, icon: FaUserCog },
-  'My Profile': { component: MyProfile, icon: FaUser },
   'Logout': { component: Settings, icon: FaSignOutAlt },
+};
+
+const timetableSections = {
+  'Class Timetable': { component: TimelineItem, icon: FaFileAlt },
+  'Exam Timetable': { component: manageTimetable, icon: FaFileAlt },
 };
 
 const SAdminDashboard = () => {
   const [currentSection, setCurrentSection] = useState('Academic Setup');
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [isTimetableOpen, setTimetableOpen] = useState(false);
   const { user } = useContext(AuthContext);
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
+  const toggleTimetableDropdown = () => setTimetableOpen(!isTimetableOpen);
 
-  const CurrentComponent = sections[currentSection].component;
+  const CurrentComponent = sections[currentSection]?.component || timetableSections[currentSection]?.component;
 
   return (
     <div className={`${darkMode ? 'dark' : ''}`}>
@@ -53,6 +65,7 @@ const SAdminDashboard = () => {
           </div>
           <nav className="mt-4 space-y-1 px-4">
             {Object.keys(sections).map((section) => {
+              if (section === 'Logout') return null; // Move logout to bottom
               const Icon = sections[section].icon;
               return (
                 <button
@@ -68,6 +81,53 @@ const SAdminDashboard = () => {
                 </button>
               );
             })}
+
+            {/* Dropdown for Timetable Management */}
+            <div className="mb-2">
+              <button
+                onClick={toggleTimetableDropdown}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-itccolor hover:text-white transition-all duration-200 ${currentSection === 'TimelineItem Manager' || currentSection === 'Exam Timetable Manager' ? 'bg-itccolor text-white' : 'dark:text-white text-gray-700'}`}
+              >
+                <div className="flex items-center space-x-3">
+                  <FaFileAlt />
+                  <span className="text-sm font-medium">Timetable Manager</span>
+                </div>
+                {isTimetableOpen ? <FaChevronUp size={14} /> : <FaChevronDown size={14} />}
+              </button>
+
+              {isTimetableOpen && (
+                <div className="ml-6 mt-1 space-y-1">
+                  {Object.keys(timetableSections).map((section) => {
+                    const Icon = timetableSections[section].icon;
+                    return (
+                      <button
+                        key={section}
+                        onClick={() => {
+                          setCurrentSection(section);
+                          setSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-itccolor hover:text-white transition-all duration-200 ${currentSection === section ? 'bg-itccolor text-white' : 'dark:text-white text-gray-700'}`}
+                      >
+                        <Icon />
+                        <span className="text-sm font-medium">{section}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Logout Button (Moved to bottom) */}
+            <button
+              onClick={() => {
+                setCurrentSection('Logout');
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-itccolor hover:text-white transition-all duration-200 ${currentSection === 'Logout' ? 'bg-itccolor text-white' : 'dark:text-white text-gray-700'}`}
+            >
+              <FaSignOutAlt />
+              <span className="text-sm font-medium">Logout</span>
+            </button>
           </nav>
 
           {/* Dark Mode Toggle */}

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "/academic/api/subjects/";
+const API_URL = "/academic/api/subjects";
 
 export const getAllSubject = async () => {
   const response = await axios.get(API_URL);
@@ -13,7 +13,7 @@ export const createSubject = async (data) => {
 };
 
 export const updateSubject = async (id, updatedData) => {
-  const response = await axios.put(`${API_URL}${id}`, updatedData);
+  const response = await axios.put(`${API_URL}/${id}`, updatedData);
   return response.data;
 };
 
@@ -22,14 +22,25 @@ export const deleteSubject = async (id) => {
 };
 
 export const getSubjectsByTeacher = async (teacherId) => {
-  console.log(teacherId)
-    const response = await axios.get(`${API_URL}/by-teacher?teacherId=${teacherId}`);
-    return response.data;
+  if (!teacherId) {
+      console.error('No teacherId provided');
+      throw new Error('Teacher ID is required');
+  }
+  
+  try {
+      
+      const response = await axios.get(`${API_URL}/by-teacher`, {
+          params: { teacherId }
+      });
+      return response.data;
+  } catch (error) {
+      console.error('API Error:', error.response?.data || error.message);
+      throw error;
+  }
 };
 
-
 export const getSubjectWithName = async (name) => {
-  console.log(name)
+
   try {
     const response = await axios.get(`${API_URL}/${name}`);
     return response.data;
@@ -38,5 +49,11 @@ export const getSubjectWithName = async (name) => {
     throw error;
   }
 };
+
+// Get student by ID
+export const getSubjectById = async (id) => {
+  return await axios.get(`${API_URL}/id/${id}`);
+};
+
 
 // export default { getSubjects, createSubject };

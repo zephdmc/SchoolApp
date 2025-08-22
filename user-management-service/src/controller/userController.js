@@ -124,7 +124,7 @@
 const jwt = require('jsonwebtoken'); // Import jsonwebtoken
 const User = require('../models/User');
 const jwtConfig = require('../config/jwtConfig'); // Adjust the path as necessary
-
+const bcrypt = require('bcryptjs');
 // Generate Token
 const generateToken = (id) => {
     return jwt.sign({ id }, jwtConfig.secret, {
@@ -170,6 +170,65 @@ const updateUserProfile = async (req, res) => {
     }
 };
 
+
+
+
+// Admin update user
+// Admin update user
+const adminUpdateUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const updateData = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update role if provided
+    if (updateData.role) {
+      user.role = updateData.role;
+    }
+
+    // Update email if provided
+    if (updateData.email) {
+      user.email = updateData.email;
+    }
+
+    // Update username if provided
+    if (updateData.password) {
+      user.password = updateData.password;
+    }
+
+       // Update username if provided
+       if (updateData.username) {
+        user.username = updateData.username;
+      }
+    // // Handle password update with hashing
+    // if (updateData.password) {
+    //   const salt = await bcrypt.genSalt(10);
+    //   user.password = await bcrypt.hash(updateData.password, salt);
+    // }
+
+    const updatedUser = await user.save();
+    
+    res.json({
+      _id: updatedUser._id,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      role: updatedUser.role
+    });
+
+  } catch (error) {
+    console.error('Update error:', error);
+    res.status(500).json({ 
+      message: 'Error updating user',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+
 // Admin: Get All Users
 const getAllUsers = async (req, res) => {
     const users = await User.find().select('-password');
@@ -180,6 +239,9 @@ const getAllUsers = async (req, res) => {
 const updateEnroll = async (req, res) => {
     try {
       const { userId } = req.params; // Get user ID from params
+
+      console.log(userId, 'text')
+
       const user = await User.findById(userId);
   
       if (!user) {
@@ -203,6 +265,7 @@ const updateEnroll = async (req, res) => {
   // Update only the Enroll field for teacher
 const updateEnrollTeacher = async (req, res) => {
   try {
+    console.log(userId, 'text')
     const { userId } = req.params; // Get user ID from params
     const user = await User.findById(userId);
 
@@ -232,7 +295,6 @@ const getStudentsWithoutEnroll = async (req, res) => {
       if (students.length === 0) {
         return res.status(404).json({ message: 'No students found without Enroll' });
       }
-  console.log(students, "student without enroll")
       res.status(200).json({ message: 'Students fetched successfully', students });
     } catch (error) {
       res.status(500).json({ message: 'Server error', error: error.message });
@@ -246,7 +308,6 @@ const getStudentsWithoutEnroll = async (req, res) => {
       if (teachers.length === 0) {
         return res.status(404).json({ message: 'No teacher found without Enroll' });
       }
-  console.log(teachers, "teacher without enroll")
       res.status(200).json({ message: 'Teachers fetched successfully', teachers });
     } catch (error) {
       res.status(500).json({ message: 'Server error', error: error.message });
@@ -266,21 +327,8 @@ const getStudentsWithoutEnroll = async (req, res) => {
 // };
 
 // Admin: Delete User
-// const deleteUser = async (req, res) => {
-//     const user = await User.findById(req.params.id);
-//     if (user) {
-//         await user.deleteOne(); // Use deleteOne() instead of remove()
-//         res.json({ message: 'User removed' });
-//     } else {
-//         res.status(404).json({ message: 'User not found' });
-//     }
-// };
-
-
 const deleteUser = async (req, res) => {
-    console.log(params.userId, 'opay')
-    const email = req.params.userId;
-    const user = await User.find(email);
+    const user = await User.findById(req.params.id);
     if (user) {
         await user.deleteOne(); // Use deleteOne() instead of remove()
         res.json({ message: 'User removed' });
@@ -289,6 +337,25 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = { getUserProfile, updateUserProfile, getAllUsers, updateEnrollTeacher, deleteUser, updateEnroll, getStudentsWithoutEnroll, getTeachersWithoutEnroll};
+// const deleteUser = async (req, res) => {
+//   try {
+//       const userId = req.params.userId;
+//     console.log(userId,);
+//       if (!userId) {
+//           return res.status(400).json({ message: 'User ID is required' });
+//       }
 
+//       const deletedUser = await User.findByIdAndDelete(userId);
+      
+//       if (!deletedUser) {
+//           return res.status(404).json({ message: 'User not found' });
+//       }
 
+//       res.json({ message: 'User removed successfully' });
+//   } catch (error) {
+//       console.error('Error deleting user:', error);
+//       res.status(500).json({ message: 'Server error while deleting user' });
+//   }
+// };
+
+module.exports = { getUserProfile, updateUserProfile, getAllUsers, updateEnrollTeacher, deleteUser, updateEnroll, getStudentsWithoutEnroll, getTeachersWithoutEnroll, adminUpdateUser};
