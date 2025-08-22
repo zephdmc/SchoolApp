@@ -1,9 +1,18 @@
+# services:
+#   - type: web
+#     name: schoolapp
+#     runtime: node
+#     buildCommand: npm install && npm run build
+#     startCommand: npm start
+#     envVars:
+#       - key: NODE_ENV
+#         value: production
 services:
   - type: web
     name: schoolapp
     runtime: node
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    buildCommand: npm install --production
+    startCommand: node server.js
     envVars:
       - key: NODE_ENV
         value: production
