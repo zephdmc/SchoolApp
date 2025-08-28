@@ -15,7 +15,6 @@
     },
     "scripts": {
         "start": "node mainserver.js",
-        "postinstall": "npm run build:all",
         "build:all": "npm run build:frontend-itc && npm run build:frontendPortal",
         "build:frontend-itc": "cd frontend-itc && npm install && npm run build",
         "build:frontendPortal": "cd portal-itc && npm install && npm run build"
