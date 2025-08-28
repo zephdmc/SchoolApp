@@ -15,8 +15,8 @@
     },
     "scripts": {
         "start": "node mainserver.js",
-        "build:all": "npm run build:frontend-itc && npm run build:frontendPortal",
-       "build:frontend-itc": "npm run build --prefix frontend-itc",
+  "build:all": "npm run build:frontendPortal",
+      
 "build:frontendPortal": "npm run build --prefix portal-itc"
 
     },
