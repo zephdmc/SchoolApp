@@ -16,8 +16,9 @@
     "scripts": {
         "start": "node mainserver.js",
         "build:all": "npm run build:frontend-itc && npm run build:frontendPortal",
-        "build:frontend-itc": "cd frontend-itc && npm install && npm run build",
-        "build:frontendPortal": "cd portal-itc && npm install && npm run build"
+       "build:frontend-itc": "npm run build --prefix frontend-itc",
+"build:frontendPortal": "npm run build --prefix portal-itc"
+
     },
     "engines": {
         "node": ">=16.20.1"
