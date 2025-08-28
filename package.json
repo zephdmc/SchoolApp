@@ -12,7 +12,7 @@
         "mongoose": "^8.7.1",
         "multer": "^2.0.1",
         "node-cron": "^4.2.1",
-            "react-scripts": "5.0.1"
+        "react-scripts": "5.0.1"
     },
    "scripts": {
   "start": "node mainserver.js",
