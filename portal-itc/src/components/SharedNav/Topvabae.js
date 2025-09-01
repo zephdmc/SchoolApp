@@ -8,8 +8,8 @@ const TopNav = () => {
         {/* Left Side: Contact Information */}
         <div className="flex text-sm items-center space-x-4">
           <span><strong>|</strong> 123 Main Owerri, Nigeria</span>
-          <span><strong>|</strong> +234 800 123 4567</span>
-          <span><strong>|</strong> itc@imostate.gov.ng</span>
+          <span><strong>|</strong> +2347062780839</span>
+          <span><strong>|</strong> zephtecha@gmail.com</span>
         </div>
 
         {/* Right Side: Social Media Links */}
