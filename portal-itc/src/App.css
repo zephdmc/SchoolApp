@@ -42,3 +42,145 @@
 .fc-event-title {
   @apply text-white;
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #receipt-content, #receipt-content * {
+    visibility: visible;
+  }
+  #receipt-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}
+
+
+@media print {
+  body {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+  
+  .print\:hidden {
+    display: none !important;
+  }
+  
+  .print\:p-0 {
+    padding: 0 !important;
+  }
+  
+  .print\:w-\[210mm\] {
+    width: 210mm !important;
+  }
+  
+  .print\:h-\[297mm\] {
+    height: 297mm !important;
+  }
+  
+  .print\:mx-0 {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  .print\:p-\[15mm\] {
+    padding: 15mm !important;
+  }
+  
+  .print\:text-2xl {
+    font-size: 1.5rem !important;
+    line-height: 2rem !important;
+  }
+  
+  .print\:text-sm {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+  
+  .print\:text-lg {
+    font-size: 1.125rem !important;
+    line-height: 1.75rem !important;
+  }
+  
+  .print\:text-base {
+    font-size: 1rem !important;
+    line-height: 1.5rem !important;
+  }
+  
+  .print\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  
+  .print\:gap-4 {
+    gap: 1rem !important;
+  }
+  
+  .print\:mb-6 {
+    margin-bottom: 1.5rem !important;
+  }
+  
+  .print\:p-3 {
+    padding: 0.75rem !important;
+  }
+  
+  .print\:rounded-none {
+    border-radius: 0 !important;
+  }
+  
+  .print\:border {
+    border-width: 1px !important;
+  }
+  
+  .print\:border-gray-300 {
+    border-color: #D1D5DB !important;
+  }
+  
+  .print\:space-y-1 > * + * {
+    margin-top: 0.25rem !important;
+  }
+  
+  .print\:pb-4 {
+    padding-bottom: 1rem !important;
+  }
+  
+  .print\:pb-1 {
+    padding-bottom: 0.25rem !important;
+  }
+  
+  .print\:mb-3 {
+    margin-bottom: 0.75rem !important;
+  }
+  
+  .print\:py-2 {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+  
+  .print\:px-3 {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+  
+  .print\:pt-4 {
+    padding-top: 1rem !important;
+  }
+  
+  .print\:text-xs {
+    font-size: 0.75rem !important;
+    line-height: 1rem !important;
+  }
+  
+  .print\:opacity-10 {
+    opacity: 0.1 !important;
+  }
+  
+  .print\:text-\[120px\] {
+    font-size: 120px !important;
+  }
+}
