@@ -48,7 +48,7 @@ exports.getResultsByClassAndSubject = async (req, res) => {
     // Extract student IDs from results
     const studentID = results.map(result => result.student_id);
     // Call Users Microservice to fetch student details
-    const userServiceURL = process.env.USER_SERVICE_URL || "http://localhost:5007/user/api/student/student-by-ids";
+    const userServiceURL = process.env.USER_SERVICE_URL || "https://schoolapp-nau2.onrender.com/user/api/student/student-by-ids";
     let studentMap = {}; // Default empty object
     try {
       const studentResponse = await axios.post(userServiceURL, { studentIds: studentID});
@@ -196,7 +196,7 @@ exports.getPendingResults = async (req, res) => {
         // Extract student IDs
         const studentIDs = pendingResults.map(result => result.student_id);
         // Fetch student details from User Microservice
-        const userServiceURL = process.env.USER_SERVICE_URL || "http://localhost:5007/user/api/student/student-by-ids";
+        const userServiceURL = process.env.USER_SERVICE_URL || "https://schoolapp-nau2.onrender.com/user/api/student/student-by-ids";
         let studentMap = {}; // Default empty object
         try {
             const studentResponse = await axios.post(userServiceURL, { studentIds: studentIDs });
@@ -324,7 +324,7 @@ exports.getStudentPendingResults = async (req, res) => {
       }
 
       // Get student details
-      const userServiceURL = process.env.USER_SERVICE_URL || "http://localhost:5007/user/api/student/student-by-ids";
+      const userServiceURL = process.env.USER_SERVICE_URL || "https://schoolapp-nau2.onrender.com/user/api/student/student-by-ids";
       const studentResponse = await axios.post(userServiceURL, { studentIds: [studentId] });
       const student = studentResponse.data[0] || {};
 
@@ -379,7 +379,7 @@ exports.getAllStudentsInClass = async (req, res) => {
     const { term_id } = req.query;
     
     // Ensure USER_SERVICE_URL is properly set
-    const userServiceBase = process.env.USER_SERVICE_URL || 'http://localhost:5007/user';
+    const userServiceBase = process.env.USER_SERVICE_URL || 'https://schoolapp-nau2.onrender.com/user';
     const userServiceURL = `${userServiceBase}/api/students/class/${classId}`;
     
     const response = await axios.get(userServiceURL);
