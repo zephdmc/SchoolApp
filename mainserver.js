@@ -49,10 +49,11 @@ app.get('/portal/*', (req, res) => {
 });
 
 // Start HTTP server for local development
-const port = 5007; // You can use any available port for local testing
+const port = process.env.PORT || 5007; // 5007 for local dev
 const httpServer = http.createServer(app);
+
 httpServer.listen(port, '0.0.0.0', () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`✅ Server is running on port ${port}`);
 });
 
 // Catch-all for 404 errors
