@@ -18,6 +18,7 @@ const getPaymentTypes = async () => {
   const response = await axios.get(`${API_URL}/types`);
   return response.data;
 };
+
 export const getPaymentTypeById = async (id) => {
   const response = await axios.get(`${API_URL}/paymentTypeById/${id}`);
   return response.data;
@@ -119,7 +120,6 @@ const paymentService = {
   updatePaymentType,
   getStudentOutstandingPayments,
   checkOutstandingPayments,
-  getPaymentTypeById,
   getStudentPaidPayment
 };
 
