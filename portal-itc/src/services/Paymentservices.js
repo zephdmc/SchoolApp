@@ -20,7 +20,9 @@ const getPaymentTypes = async () => {
 };
 
 export const getPaymentTypeById = async (id) => {
-  const response = await axios.get(`${API_URL}/paymentTypeById/${id}`);
+  console.log(id)
+  const response = await axios.get(`${API_URL}/spayType/${id}`);
+  console.log(response)
   return response.data;
 };
 
