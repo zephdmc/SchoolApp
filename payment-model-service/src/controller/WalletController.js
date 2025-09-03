@@ -456,7 +456,7 @@ const getAllWallets = async (req, res) => {
       const studentIds = [...new Set(wallets.map(w => w.student.toString()))];
       
       if (studentIds.length > 0) {
-        const studentsResponse = await axios.get('http://localhost:5007/user/api/student/batch', {
+        const studentsResponse = await axios.get('https://schoolapp-nau2.onrender.com/user/api/student/batch', {
           params: { ids: studentIds.join(',') }
         });
   
@@ -587,7 +587,7 @@ const getAllTransactions = async (req, res) => {
     if (studentMongoIds.length > 0) {
       try {
         // First get all students that match these studentIDs
-        const studentResponse = await axios.get('http://localhost:5007/user/api/student/batch-by-studentid', {
+        const studentResponse = await axios.get('https://schoolapp-nau2.onrender.com/user/api/student/batch-by-studentid', {
           params: { studentIds: studentMongoIds.join(',') }
         });
 
