@@ -30,7 +30,7 @@ app.use('/academic', academic);
 app.use('/fee', payment);
 
 // Serve index.html for React frontend routes
-app.get('/payment/:id', (req, res) => {
+app.get('/portal/payment/:id', (req, res) => {
     res.sendFile(path.join(__dirname, './portal-itc/build', 'index.html'), (err) => {
         if (err) {
             console.error('Error serving frontend:', err);
