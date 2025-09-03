@@ -16,6 +16,7 @@ import Login from './components/Autho/Login';
 import Register from './components/Autho/Register';
 import UserPage from './Pages/UserPage';
 import ForgotPassword from './components/SharedSection/forgot-password';
+import PaymentDetails from './Pages/PaymentDetails';
 // import SearchCars from './Pages/Shared/utility/SearchCars1';
 function App() {
   return (
@@ -32,6 +33,8 @@ function App() {
         <Route path="/Account" element={<PrivateRoute><Account /></PrivateRoute>} />
         <Route path="/Staff" element={<PrivateRoute><StaffPage /></PrivateRoute>} />
         <Route path="/UserPage" element={<PrivateRoute><UserPage /></PrivateRoute>} />
+        <Route path="/UserPage" element={<PrivateRoute><UserPage /></PrivateRoute>} />
+        <Route path="/payment/:id"  element={<PaymentDetails />} />
         {/* <Route path="/Booking" element={<PrivateRoute><SearchCars /></PrivateRoute>} /> */}
         <Route path="/" element={<Login />} />
       </Routes>

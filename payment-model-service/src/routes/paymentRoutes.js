@@ -13,7 +13,9 @@ const {
   deletePaymentType,
   getStudentOutstandingPayments,
   processOverduePayments,
-  outstanding
+  outstanding,
+  getStudentPaidPayment,
+  getPaymentTypeById
 } = require('../controller/paymentController');
 
 const router = express.Router();
@@ -30,6 +32,8 @@ router.post('/initiate', initiatePayment);
 router.get('/verify/:reference', verifyPayment);
 router.get('/payments/status/:studentID/:class', getStudentPayments);
 router.get('/status', getPaymentStatusForTypes);
+router.get('/spayType/:id', getStudentPaidPayment);
+router.get('/paymentTypeById/:id', getPaymentTypeById);
 router.put('/:id', updatePaymentType);
 router.delete('/:id', deletePaymentType);
 router.get('/process-overdue', processOverduePayments);

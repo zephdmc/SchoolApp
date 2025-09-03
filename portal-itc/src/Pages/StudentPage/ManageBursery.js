@@ -660,6 +660,33 @@ case 'current':
               <h2 className="text-xl font-semibold text-blue-700 mt-4 print:text-lg">OFFICIAL PAYMENT RECEIPT</h2>
             </div>
             
+                  
+   {/* QR Code Section - Modern Design */}
+   <div className="flex justify-center mb-6 print:mb-4">
+        <div className="bg-white p-4 border-2 border-dashed border-blue-100 rounded-xl shadow-sm print:border-0 print:shadow-none">
+          <div className="text-center mb-3">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium print:text-[10px]">
+              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+              </svg>
+              VERIFICATION CODE
+            </div>
+          </div>
+          <img 
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(
+              `https://schoolapp-nau2.onrender.com/portal/payment/${selectedReceipt._id}?name=${encodeURIComponent(student?.firstName + ' ' + student?.lastName)}&type=${encodeURIComponent(selectedReceipt.name || selectedReceipt.paymentType?.name || 'Payment')}`
+            )}`} 
+            alt="Payment Verification QR Code" 
+            className="w-28 h-28 mx-auto print:w-24 print:h-24 border-4 border-white shadow-sm"
+          />
+          <div className="text-center mt-3">
+            <p className="text-xs text-gray-500 font-medium print:text-[10px]">Scan to verify receipt</p>
+            <p className="text-[10px] text-gray-400 mt-1 print:text-[9px]">ID: {selectedReceipt._id}</p>
+          </div>
+        </div>
+      </div>
+      
+
             {/* Receipt Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 print:grid-cols-2 print:gap-4 print:mb-6">
               <div>

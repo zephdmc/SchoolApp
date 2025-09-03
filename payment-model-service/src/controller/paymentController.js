@@ -70,6 +70,92 @@ const getAllPayments = async (req, res) => {
   }
 };
 
+// @desc    Get payment type by ID
+// @route   GET /fee/api/fee/paymentTypeById/:id
+// @access  Public
+const getPaymentTypeById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid payment type ID'
+      });
+    }
+
+    const paymentType = await PaymentType.findById(id)
+      .populate('academicSession', 'name')
+      .populate('level', 'name');
+
+    if (!paymentType) {
+      return res.status(404).json({
+        success: false,
+        message: 'Payment type not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: paymentType
+    });
+  } catch (error) {
+    console.error('Error fetching payment type:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching payment type'
+    });
+  }
+};
+
+
+// @desc    Get student's paid payment by ID
+// @route   GET /fee/api/fee/spayType/:id
+// @access  Public
+const getStudentPaidPayment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid payment ID'
+      });
+    }
+
+    const payment = await Payment.findById(id)
+      .populate('student', 'name email studentId')
+      .populate('paymentType', 'name amount')
+      .populate('transaction', 'reference amount status');
+
+    if (!payment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Payment not found'
+      });
+    }
+
+    // Optional: Check if payment is successful/paid
+    if (payment.status !== 'successful' && !payment.verified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Payment is not completed or verified'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: payment
+    });
+  } catch (error) {
+    console.error('Error fetching student payment:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching payment details'
+    });
+  }
+};
+
 
 const processOverduePayments = async (req, res) => {
   try {
@@ -715,7 +801,9 @@ module.exports = {
   processOverduePayments,
   getStudentOutstandingPayments,
   createOutstandingPaymentsForStudent,
-  outstanding
+  outstanding,
+  getPaymentTypeById,
+  getStudentPaidPayment
 };
 
 
