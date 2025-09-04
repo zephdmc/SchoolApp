@@ -54,7 +54,7 @@ const getStudentPaidPayments = async (studentId) => {
   return res.data;
 };
 
-const getStudentPaidPayment = async (id) => {
+export const getStudentPaidPayment = async (id) => {
   const res = await axios.get(`${API_URL}/spayType/${id}`);
   return res.data;
 };

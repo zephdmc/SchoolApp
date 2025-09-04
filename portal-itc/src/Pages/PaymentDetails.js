@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import {getPaymentTypeById} from '../services/Paymentservices'
+import {getStudentPaidPayment} from '../services/Paymentservices'
 export default function PaymentDetails() {
   const { id } = useParams();
   const location = useLocation();
@@ -15,7 +15,7 @@ export default function PaymentDetails() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await getPaymentTypeById(id);
+        const res = await getStudentPaidPayment(id);
         const data = await res.json();
         setPayment(data);
         setLoading(false);
