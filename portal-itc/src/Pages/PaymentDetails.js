@@ -16,11 +16,12 @@ export default function PaymentDetails() {
     async function fetchData() {
       try {
         const res = await getStudentPaidPayment(id);
-          const data = await res.json();
-          console.log(data)
-        setPayment(data);
-        setLoading(false);
-      } catch (err) {
+if (res.success) {
+    setPayment(res.data);
+    setLoading(false);
+
+}
+         } catch (err) {
         console.error(err);
         setLoading(false);
       }
