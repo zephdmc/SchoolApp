@@ -124,9 +124,9 @@ const getStudentPaidPayment = async (req, res) => {
     }
 
     const payment = await Payment.findById(id)
-      .populate('student', 'name email studentId')
-      .populate('paymentType', 'name amount')
-      .populate('transaction', 'reference amount status');
+      // .populate('student', 'name email studentId')
+      // .populate('paymentType', 'name amount')
+      // .populate('transaction', 'reference amount status');
 
     if (!payment) {
       return res.status(404).json({
