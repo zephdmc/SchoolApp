@@ -16,6 +16,7 @@ const createPaymentType = async (paymentTypeData, token) => {
 
 const getPaymentTypes = async () => {
   const response = await axios.get(`${API_URL}/types`);
+  console.log(response,'rt')
   return response.data;
 };
 
@@ -73,16 +74,75 @@ const updatePaymentType = async (id, paymentTypeData) => {
   return response.data;
 };
 
-const getStudentOutstandingPayments = async (studentId) => {
+// const getStudentOutstandingPayments = async (studentId) => {
+//   try {
+//     const response = await axios.get(`/fee/api/fee/outstanding/${studentId}`);
+//     console.log(response.data.data);
+//     return response.data.data;
+//   } catch (error) {
+//     throw error.response?.data || error;
+//   }
+// };
+
+export const getPaymentTypeses = async () => {
   try {
-    const response = await axios.get(`/fee/api/fee/outstanding/${studentId}`);
-    console.log(response.data.data);
-    return response.data.data;
+    const response = await axios.get(`${API_URL}/payment/types`);
+    console.log(response, "eer")
+    // Handle different response formats
+    if (Array.isArray(response.data)) {
+      return response.data; // Direct array response
+    } else if (response.data.data && Array.isArray(response.data.data)) {
+      return response.data.data; // { data: [...] } format
+    } else if (Array.isArray(response.data.paymentTypes)) {
+      return response.data.paymentTypes; // { paymentTypes: [...] } format
+    } else {
+      console.warn('Unexpected payment types response format:', response.data);
+      return [];
+    }
   } catch (error) {
-    throw error.response?.data || error;
+    console.error('Error fetching payment types:', error);
+    throw error;
   }
 };
 
+// Get payments by payment type
+export const getPaymentsByPaymentType = async (paymentTypeId, filters = {}) => {
+  try {
+    const { page = 1, limit = 10, status } = filters;
+    const params = new URLSearchParams({ page, limit });
+    
+    if (status) params.append('status', status);
+    
+    const response = await axios.get(
+      `${API_URL}/by-payment-type/${paymentTypeId}?${params}`
+    );
+    
+    // Handle different response formats
+    let data = response.data;
+    if (data.data) {
+      data = data.data; // Handle { data: {...} } format
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error fetching payments by payment type:', error);
+    throw error;
+  }
+};
+
+
+
+
+// In your paymentService.getStudentOutstandingPayments method
+const getStudentOutstandingPayments = async (studentId) => {
+  try {
+    const response = await axios.get(`/fee/api/fee/outstanding/${studentId}`);
+    return response.data; // This should be { success: true, studentId: ..., data: [...] }
+  } catch (error) {
+    console.error('Error fetching outstanding payments:', error);
+    throw error;
+  }
+};
 
 export const getStudentPaymentsDue = async (studentId, levelId) => {
   try {

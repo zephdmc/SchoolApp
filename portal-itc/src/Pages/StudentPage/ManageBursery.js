@@ -5,6 +5,7 @@ import paymentService from '../../services/Paymentservices';
 import { getStudentById } from '../../services/studentService';
 import { getClassById } from '../../services/ClassService';
 import axios from 'axios';
+import { MdOutlineSignalWifiStatusbarNull } from 'react-icons/md';
 
 const StudentPayments = () => {
   const [paymentsDue, setPaymentsDue] = useState([]);
@@ -23,99 +24,117 @@ const StudentPayments = () => {
   const [classes, setClass] = useState('');
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
+  const [studentMainID, setStudentID] = useState(MdOutlineSignalWifiStatusbarNull)
 
-  const normalizeOutstandingPayments = (payments) => {
-    if (!payments) return [];
-    
-    return payments.map(payment => ({
-      ...payment,
-      _id: payment._id || payment.paymentTypeId,
-      paymentTypeId: payment.paymentTypeId || payment._id,
-      amountDue: payment.amountDue || payment.amount || payment.paymentType?.amount,
-      originalDueDate: payment.originalDueDate || payment.dueDate || payment.paymentType?.dueDate,
-      isOutstanding: true,
-      originalLevel: payment.originalLevel || payment.level || student?.class 
-    }));
-  };
   
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError('');
-        
-        const studentResponse = await getStudentById(user._id);
-        if (!studentResponse?.data?.data?.class) {
-          throw new Error('Student not found');
-        }
-        setStudent(studentResponse.data.data);
-        console.log(studentResponse,'Response')
+// FIXED: Simplified normalization function
+const normalizeOutstandingPayments = (payments) => {
+  if (!payments) return [];
   
-        
-        // Fetch all data in parallel
-        const [classes, dueResponse, outstandingResponse, paidResponse, balanceResponse] = await Promise.all([
-          getClassById(studentResponse.data.data.class),
-          paymentService.getStudentPaymentsDue(user._id, studentResponse.data.data.class),
-          paymentService.getStudentOutstandingPayments(studentResponse.data.data._id).catch(() => ({ outstanding: [] })), // Return empty object if fails
-          paymentService.getStudentPaidPayments(user._id),
-          axios.get(`/fee/api/wallet/balance/${user._id}`).catch(() => ({ data: { balance: 0 }}))
-        ]);
-        setClass(classes.data.name);
-        console.log(classes.data.name, 'due')
-        console.log( outstandingResponse, 'outstanding')
-        // Process outstanding payments
-        let processedOutstanding = [];
-        if (outstandingResponse?.outstanding) {
-          processedOutstanding = normalizeOutstandingPayments(outstandingResponse.outstanding);
-        } else if (Array.isArray(outstandingResponse)) {
-          processedOutstanding = normalizeOutstandingPayments(outstandingResponse);
-        }
+  console.log('Raw outstanding payments:', payments);
   
-        // Process current payments - filter out any that exist in outstanding
-        let processedCurrent = [];
-        if (dueResponse?.currentPending) {
-          // Create a Set of outstanding payment IDs for quick lookup
-          const outstandingIds = new Set(
-            processedOutstanding.map(p => p.paymentTypeId || p._id)
-          );
+  return payments.map(payment => ({
+    ...payment,
+    _id: payment._id,
+    paymentTypeId: payment.paymentType?._id || payment._id,
+    amountDue: payment.amountDue || payment.paymentType?.amount || 0,
+    originalDueDate: payment.originalDueDate || payment.paymentType?.dueDate,
+    name: payment.name || payment.paymentType?.name || 'Unnamed Payment',
+    description: payment.description || payment.paymentType?.description || 'No description',
+    isOutstanding: true,
+    originalLevel: payment.originalLevel || payment.level,
+    student: payment.student || user._id
+  }));
+};
   
-          processedCurrent = dueResponse.currentPending.filter(payment => {
-            // Skip if payment is marked as outstanding
-            if (payment.status === 'outstanding') return false;
-            
-            // Skip if payment exists in outstanding list
-            if (outstandingIds.has(payment._id)) return false;
-            
-            // Skip if payment's paymentTypeId exists in outstanding list
-            if (payment.paymentType?._id && outstandingIds.has(payment.paymentType._id)) return false;
-            
-            return true;
-          });
-        }
-  
-        // Process paid payments
-        let processedPaid = [];
-        if (Array.isArray(paidResponse)) {
-          processedPaid = paidResponse;
-        }
-  
-        setPaymentsDue(processedCurrent);
-        setOutstandingPayments(processedOutstanding);
-        setPaidPayments(processedPaid);
-        setWalletBalance(balanceResponse.data.balance || 0);
-  
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError(err.message || 'Failed to fetch payment data');
-      } finally {
-        setLoading(false);
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      const studentResponse = await getStudentById(user._id);
+      if (!studentResponse?.data?.data?.class) {
+        throw new Error('Student not found');
       }
-    };
-  
-    fetchData();
-  }, [user._id, success]);
+      setStudent(studentResponse.data.data);
+      console.log('Student response:', studentResponse.data.data);
 
+      // Get the student's custom ID for backend requests
+      const studentCustomId = studentResponse.data.data.studentID;
+      console.log(studentCustomId, "servic")
+
+      setStudentID(studentCustomId)
+      const [classes, dueResponse, outstandingResponse, paidResponse, balanceResponse] = await Promise.all([
+        getClassById(studentResponse.data.data.class),
+        paymentService.getStudentPaymentsDue(user._id, studentResponse.data.data.class),
+        paymentService.getStudentOutstandingPayments(studentCustomId).catch(err => {
+          console.error('Outstanding payments error:', err);
+          return { data: [] }; // Return empty array on error
+        }),
+        paymentService.getStudentPaidPayments(user._id),
+        axios.get(`/fee/api/wallet/balance/${user._id}`).catch(() => ({ data: { balance: 0 }}))
+      ]);
+      
+      setClass(classes.data.name);
+      console.log('Classes:', classes.data.name);
+      console.log('Due response:', dueResponse);
+      console.log('Outstanding response:', outstandingResponse);
+      console.log('Paid response:', paidResponse);
+      
+      // FIXED: Handle outstanding payments correctly
+      let processedOutstanding = [];
+      
+      if (outstandingResponse?.data && Array.isArray(outstandingResponse.data)) {
+        processedOutstanding = normalizeOutstandingPayments(outstandingResponse.data);
+      }
+      
+      console.log('Processed outstanding:', processedOutstanding);
+      
+      // FIXED: No filtering needed - backend already returns only this student's payments
+      // The backend uses the MongoDB _id to query, so payments already match user._id
+      
+      // Process current payments
+      let processedCurrent = [];
+      if (dueResponse?.currentPending) {
+        const outstandingIds = new Set(
+          processedOutstanding.map(p => p.paymentTypeId || p._id)
+        );
+
+        processedCurrent = dueResponse.currentPending.filter(payment => {
+          if (payment.status === 'outstanding') return false;
+          if (outstandingIds.has(payment._id)) return false;
+          if (payment.paymentType?._id && outstandingIds.has(payment.paymentType._id)) return false;
+          return true;
+        });
+      }
+
+      // Process paid payments
+      let processedPaid = [];
+      if (Array.isArray(paidResponse)) {
+        processedPaid = paidResponse;
+      } else if (paidResponse?.data) {
+        processedPaid = Array.isArray(paidResponse.data) ? paidResponse.data : [];
+      }
+
+      setPaymentsDue(processedCurrent);
+      setOutstandingPayments(processedOutstanding);
+      setPaidPayments(processedPaid);
+      setWalletBalance(balanceResponse.data.balance || 0);
+
+      console.log('Final outstanding payments:', processedOutstanding);
+
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError(err.message || 'Failed to fetch payment data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, [user._id, success]);
+  
 
   const handleCheckboxChange = (paymentId, isChecked, isOutstanding = false) => {
     if (isOutstanding) {
@@ -129,6 +148,7 @@ const StudentPayments = () => {
     }
   };
 
+
   const calculateTotal = () => {
     const currentTotal = paymentsDue
       .filter(pt => selectedPayments.includes(pt._id))
@@ -141,87 +161,148 @@ const StudentPayments = () => {
     return currentTotal + outstandingTotal;
   };
 
-  const handleWalletPayment = async () => {
-    try {
-      setProcessing(true);
-      setError('');
-      setSuccess('');
-      
-      console.log('Selected Payments:', selectedPayments);
-      console.log('Selected Outstanding:', selectedOutstanding);
-      console.log('All Outstanding Payments:', outstandingPayments);
-      
-      // Validate that we have the outstanding payment data
-      if (selectedOutstanding.length > 0 && outstandingPayments.length === 0) {
-        throw new Error('Outstanding payments data not loaded. Please refresh and try again.');
-      }
-      
-      const totalAmount = calculateTotal();
-      
-      if (totalAmount > walletBalance) {
-        throw new Error('Insufficient wallet balance');
-      }
-  
-      // Ensure we're sending the correct data structure
-      const paymentData = {
-        paymentTypeIds: selectedPayments,
-        outstandingIds: selectedOutstanding
-      };
-  
-      console.log('Sending to backend:', paymentData);
-      
-      const response = await axios.post(
-        `/fee/api/wallet/wallet-pay-with-outstanding/${user._id}`,
-        paymentData
-      );
-      
-      setSuccess(response.data.message || 'Payment successful!');
-      setSelectedPayments([]);
-      setSelectedOutstanding([]);
-      setWalletBalance(response.data.newBalance);
-      
-      // Refresh data with better error handling
-      try {
-        const [due, outstanding, paid, balance] = await Promise.all([
-          paymentService.getStudentPaymentsDue(user._id, student?.class),
-          paymentService.getStudentOutstandingPayments(user._id).catch(err => {
-            console.error('Error fetching outstanding:', err);
-            return []; // Return empty array instead of failing
-          }),
-          paymentService.getStudentPaidPayments(user._id),
-          axios.get(`/fee/api/wallet/balance/${user._id}`).catch(() => ({ data: { balance: walletBalance }}))
-        ]);
-  
-        // Process the refreshed data with better checks
-        const newOutstanding = Array.isArray(outstanding) 
-          ? normalizeOutstandingPayments(outstanding) 
-          : outstanding?.data 
-            ? normalizeOutstandingPayments(outstanding.data)
-            : [];
-  
-        const newCurrent = Array.isArray(due?.currentPending) 
-          ? due.currentPending.filter(p => 
-              !newOutstanding.some(op => op._id === p._id) && 
-              !p.isOutstanding
-            )
-          : [];
-  
-        setPaymentsDue(newCurrent);
-        setOutstandingPayments(newOutstanding);
-        setPaidPayments(Array.isArray(paid) ? paid : []);
-        
-      } catch (refreshError) {
-        console.error('Error refreshing data:', refreshError);
-        // Don't show error to user for background refresh
-      }
-      
-    } catch (err) {
-      console.error('Payment error:', err);
-      setError(err.response?.data?.message || err.message || 'Payment failed');
-    } finally {
-      setProcessing(false);
+
+
+
+
+const handleWalletPayment = async () => {
+  try {
+    setProcessing(true);
+    setError('');
+    setSuccess('');
+    
+    console.log('Selected Payments:', selectedPayments);
+    console.log('Selected Outstanding:', selectedOutstanding);
+    console.log('All Outstanding Payments:', outstandingPayments);
+    
+    // Validate that we have the outstanding payment data
+    if (selectedOutstanding.length > 0 && outstandingPayments.length === 0) {
+      throw new Error('Outstanding payments data not loaded. Please refresh and try again.');
     }
+    
+    const totalAmount = calculateTotal();
+    
+    if (totalAmount > walletBalance) {
+      throw new Error('Insufficient wallet balance');
+    }
+
+  // Alternative simpler validation - just check if selected IDs exist in outstandingPayments
+const invalidOutstanding = selectedOutstanding.filter(
+  selectedId => !outstandingPayments.some(op => op._id === selectedId)
+);
+
+if (invalidOutstanding.length > 0) {
+  console.error('Invalid payment IDs:', invalidOutstanding);
+  throw new Error(`Some selected payments are invalid or don't belong to you. Please refresh and try again.`);
+}
+
+    const { default: mongoose } = await import('mongoose');
+    
+    const outstandingObjectIds = selectedOutstanding.map(id => {
+      try {
+        return new mongoose.Types.ObjectId(id);
+      } catch (error) {
+        console.error(`Invalid ID format: ${id}`, error);
+        throw new Error(`Invalid payment ID format: ${id}`);
+      }
+    });
+
+    const paymentTypeObjectIds = selectedPayments.map(id => {
+      try {
+        return new mongoose.Types.ObjectId(id);
+      } catch (error) {
+        console.error(`Invalid ID format: ${id}`, error);
+        throw new Error(`Invalid payment ID format: ${id}`);
+      }
+    });
+
+    // Ensure we're sending the correct data structure with ObjectIds
+    const paymentData = {
+      paymentTypeIds: paymentTypeObjectIds,
+      outstandingIds: outstandingObjectIds
+    };
+
+    console.log('Sending to backend with ObjectIds:', paymentData);
+    
+    const response = await axios.post(
+      `/fee/api/wallet/wallet-pay-with-outstanding/${studentMainID}`,
+      paymentData
+    );
+    
+
+    console.log('Selected Payments (current):', selectedPayments);
+console.log('Selected Outstanding:', selectedOutstanding);
+console.log('All Payments Due:', paymentsDue);
+console.log('All Outstanding Payments:', outstandingPayments);
+
+
+
+    setSuccess(response.data.message || 'Payment successful!');
+    setSelectedPayments([]);
+    setSelectedOutstanding([]);
+    setWalletBalance(response.data.newBalance);
+    
+    // Refresh data with better error handling
+    try {
+      const [due, outstanding, paid, balance] = await Promise.all([
+        paymentService.getStudentPaymentsDue(user._id, student?.class),
+        paymentService.getStudentOutstandingPayments(user._id).catch(err => {
+          console.error('Error fetching outstanding:', err);
+          return []; // Return empty array instead of failing
+        }),
+        paymentService.getStudentPaidPayments(user._id),
+        axios.get(`/fee/api/wallet/balance/${user._id}`).catch(() => ({ data: { balance: walletBalance }}))
+      ]);
+
+      // Process the refreshed data with better checks
+      const newOutstanding = Array.isArray(outstanding) 
+        ? normalizeOutstandingPayments(outstanding) 
+        : outstanding?.data 
+          ? normalizeOutstandingPayments(outstanding.data)
+          : [];
+
+      // Filter to only current user's payments
+      const filteredOutstanding = newOutstanding.filter(payment => payment.student === user._id);
+
+      const newCurrent = Array.isArray(due?.currentPending) 
+        ? due.currentPending.filter(p => 
+            !filteredOutstanding.some(op => op._id === p._id) && 
+            !p.isOutstanding
+          )
+        : [];
+
+      setPaymentsDue(newCurrent);
+      setOutstandingPayments(filteredOutstanding);
+      setPaidPayments(Array.isArray(paid) ? paid : []);
+      
+    } catch (refreshError) {
+      console.error('Error refreshing data:', refreshError);
+      // Don't show error to user for background refresh
+    }
+    
+  } catch (err) {
+    console.error('Payment error:', err);
+    
+    // Enhanced error handling to show backend response details
+    if (err.response?.data) {
+      const backendError = err.response.data;
+      console.log('Backend error details:', backendError);
+      
+      if (backendError.details) {
+        // Show detailed error message from backend
+        setError(`${backendError.message}: ${JSON.stringify(backendError.details)}`);
+      } else {
+        setError(backendError.message || err.message || 'Payment failed');
+      }
+    } else {
+      setError(err.message || 'Payment failed');
+    }
+  } finally {
+    setProcessing(false);
+  }
   };
+  
+  
 
   const handlePrintReceipt = (payment) => {
   setSelectedReceipt(payment);
@@ -463,6 +544,31 @@ case 'current':
   return (
     <div className="container mx-auto p-4 max-w-6xl">
       <h2 className="text-2xl font-semibold mb-6">My Payments</h2>
+
+      
+
+{/* DEBUG SECTION - Add this temporarily */}
+<div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-yellow-700">
+              <strong>Debug Info:</strong> Outstanding payments: {outstandingPayments.length}
+            </p>
+            <button 
+              onClick={() => console.log('Outstanding payments:', outstandingPayments)}
+              className="mt-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded"
+            >
+              Log to Console
+            </button>
+          </div>
+        </div>
+      </div>
+
 
       {/* Wallet Balance Card */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">

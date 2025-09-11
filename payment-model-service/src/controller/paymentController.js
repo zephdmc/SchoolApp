@@ -12,6 +12,7 @@ require('../../../academic-manager-service/src/models/Class');
 
 // In payment-model-service/src/controller/paymentController.js
 const Student = require('../../../user-management-service/src/models/Student');
+
 const createPaymentType = async (req, res) => {
   try {
     const { name, description, amount, dueDate, academicSession, level } = req.body;
@@ -124,10 +125,7 @@ const getStudentPaidPayment = async (req, res) => {
     }
 
     const payment = await Payment.findById(id)
-      // .populate('student', 'name email studentId')
-      // .populate('paymentType', 'name amount')
-      // .populate('transaction', 'reference amount status');
-
+  
     if (!payment) {
       return res.status(404).json({
         success: false,
@@ -291,50 +289,44 @@ async function createOutstandingPaymentsForStudent(studentId, levelId) {
   }
 }
 
-// // // Get outstanding payments for a student
-// const getStudentOutstandingPayments = async (req, res) => {
-//   try {
-//     const { studentId } = req.params;
-//     console.log(studentId, 'outstanding')
-//     const outstandingPayments = await OutstandingPayment.find({
-//       student: studentId,
-//       status: { $ne: 'paid' }
-//     }).populate('paymentType originalLevel academicSession');
-// console.log(outstandingPayments, 'outstandingPayments')
-//     res.json(outstandingPayments);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
 const getStudentOutstandingPayments = async (req, res) => {
   try {
     const { studentId } = req.params;
 
-    // Validate studentId
-    if (!studentId || !mongoose.Types.ObjectId.isValid(studentId)) {
+    if (!studentId) {
       return res.status(400).json({ 
         success: false,
         message: 'Invalid student ID'
       });
     }
+
+    // 1. Find student by custom studentID
+    const student = await Student.findOne({ studentID: studentId }).lean();
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    console.log(student._id.toString(), 'student _id from DB');
+
+    // 2. Query OutstandingPayment using ObjectId directly
     const outstandingPayments = await OutstandingPayment.find({
-      student: studentId,
+      student: student._id,      // <-- use ObjectId, not string
       status: { $ne: 'paid' }
     })
     .populate('paymentType')
-      .lean();
-    
+    .lean();
 
-    // Always return JSON, even if empty
     res.status(200).json({
       success: true,
+      studentId: student._id, // return ObjectId so frontend can match
       data: outstandingPayments
     });
 
   } catch (error) {
     console.error('Error fetching outstanding payments:', error);
-    // Ensure we always return JSON
     res.status(500).json({ 
       success: false,
       message: 'Failed to fetch outstanding payments',
@@ -344,80 +336,6 @@ const getStudentOutstandingPayments = async (req, res) => {
 };
 
 
-// const getStudentPaymentsDue = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { level } = req.query;
-
-//     // 1. Get all outstanding payments first
-//     const outstandingPayments = await OutstandingPayment.find({
-//       student: id,
-//       status: { $ne: 'paid' }
-//     }).populate('paymentType').lean();
-
-//     // 2. Get active payment types for current level
-//     const paymentTypes = await PaymentType.find({ 
-//       level,
-//       isActive: true 
-//     }).lean();
-
-//     // 3. Get student's successful payments
-//     const paymentsMade = await Payment.find({ 
-//       student: id, 
-//       status: 'successful' 
-//     }).populate('paymentType').lean();
-
-//  // ✅ Extract paymentType IDs from outstandingPayments safely
-// const outstandingPaymentTypeIds = new Set(
-//   outstandingPayments.map(op => {
-//     return op.paymentType?._id
-//       ? op.paymentType._id.toString()
-//       : op.paymentType.toString();
-//   })
-// );
-
-// const currentPendingPayments = paymentTypes
-//   .filter(pt => {
-//     const ptId = pt._id.toString();
-
-//     // Check if already paid
-//     const isPaid = paymentsMade.some(pm => {
-//       const pmId = pm.paymentType?._id
-//         ? pm.paymentType._id.toString()
-//         : pm.paymentType.toString();
-//       return pmId === ptId;
-//     });
-
-//     // Check if already in outstanding
-//     const isOutstanding = outstandingPaymentTypeIds.has(ptId);
-
-//     return !isPaid && !isOutstanding;
-//   })
-//   .map(pt => ({
-//     ...pt,
-//     isCurrentPending: true,
-//     paymentTypeId: pt._id
-//   }));
-
-
-//     // Format outstanding payments
-//     const formattedOutstanding = outstandingPayments.map(op => ({
-//       ...op,
-//       _id: op._id,
-//       paymentTypeId: op.paymentType?._id,
-//       isOutstanding: true,
-//       outstandingId: op._id
-//     }));
-
-//     res.json({
-//       currentPending: currentPendingPayments,
-//       outstanding: formattedOutstanding
-//     });
-//   } catch (error) {
-//     console.error('Payment due error:', error);
-//     res.status(500).json({ message: 'Server error fetching payments' });
-//   }
-// };
 const getStudentPaymentsDue = async (req, res) => {
   try {
     const { id } = req.params;
@@ -480,58 +398,6 @@ const getStudentPaymentsDue = async (req, res) => {
     res.status(500).json({ message: 'Server error fetching payments' });
   }
 };
-// const getStudentPaymentsDue = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { level } = req.query;
-
-//     // Get active payment types for level
-//     const paymentTypes = await PaymentType.find({ 
-//       level,
-//       isActive: true 
-//     }).lean();
-
-//     // Get student's successful payments
-//     const paymentsMade = await Payment.find({ 
-//       student: id, 
-//       status: 'successful' 
-//     }).populate('paymentType').lean();
-
-//     // Filter unpaid types - these are CURRENT pending payments
-//     const currentPendingPayments = paymentTypes.filter(pt => 
-//       !paymentsMade.some(pm => pm.paymentType?._id.toString() === pt._id.toString())
-//     ).map(pt => ({
-//       ...pt,
-//       isCurrentPending: true, // Mark as current pending
-//       paymentTypeId: pt._id
-//     }));
-
-//     // Get outstanding payments - these are from previous terms/classes
-//     const outstandingPayments = await OutstandingPayment.find({
-//       student: id,
-//       status: { $ne: 'paid' }
-//     })
-//     .populate('paymentType')
-//     .lean();
-//     const formattedOutstanding = outstandingPayments.map(op => ({
-//       ...op,
-//       _id: op._id,
-//       paymentTypeId: op.paymentType?._id,
-//       isOutstanding: true,
-//       outstandingId: op._id
-//     }));
-
-//     res.json({
-//       currentPending: currentPendingPayments,
-//       outstanding: formattedOutstanding
-//     });
-//   } catch (error) {
-//     console.error('Payment due error:', error);
-//     res.status(500).json({ message: 'Server error fetching payments' });
-//   }
-// };
-
-
 
 
 // Update your initiatePayment function to handle outstanding payments
@@ -785,6 +651,194 @@ const deletePaymentType = async (req, res) => {
     }
 };
 
+
+
+const getPaymentsByPaymentType = async (req, res) => {
+  try {
+    const { paymentTypeId } = req.params;
+    const { page = 1, limit = 10, status } = req.query;
+
+    const pageNum = parseInt(page, 10) || 1;
+    const limitNum = parseInt(limit, 10) || 10;
+
+    if (!mongoose.Types.ObjectId.isValid(paymentTypeId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid payment type ID'
+      });
+    }
+
+    const paymentType = await PaymentType.findById(paymentTypeId);
+    if (!paymentType) {
+      return res.status(404).json({
+        success: false,
+        message: 'Payment type not found'
+      });
+    }
+
+    const query = { paymentType: paymentTypeId };
+    if (status && ['pending', 'successful', 'failed'].includes(status)) {
+      query.status = status;
+    }
+
+    // Fetch payments (sorted by latest createdAt)
+    const payments = await Payment.find(query)
+      .populate('paymentType', 'name amount')
+      .populate('transaction', 'reference amount status')
+      .sort({ createdAt: -1 }) // ✅ most recent first
+      .limit(limitNum)
+      .skip((pageNum - 1) * limitNum)
+      .lean()
+      .exec();
+
+    console.log('📌 Raw payments from DB:', payments);
+
+    // Extract student keys (expected to be studentID values)
+    const studentKeys = [
+      ...new Set(
+        payments
+          .map(p => (p.student ? p.student.toString() : null))
+          .filter(Boolean)
+      )
+    ];
+    console.log('📌 Extracted student keys from payments (toString):', studentKeys);
+
+    // Primary lookup: match payment.student -> Student.studentID
+    const studentsByStudentIDList = studentKeys.length
+      ? await Student.find(
+          { studentID: { $in: studentKeys } },
+          'firstName lastName email studentID admissionNumber'
+        ).lean()
+      : [];
+
+    console.log('📌 Students fetched by studentID:', studentsByStudentIDList);
+
+    // Build maps for fast lookup
+    const studentsByStudentID = {};
+    const studentsById = {};
+    studentsByStudentIDList.forEach(s => {
+      if (s && s.studentID) studentsByStudentID[s.studentID] = s;
+      if (s && s._id) studentsById[s._id.toString()] = s;
+    });
+
+    // Fallback for missing keys (try matching ObjectId)
+    const missingKeys = studentKeys.filter(k => !studentsByStudentID[k]);
+    if (missingKeys.length > 0) {
+      console.log(
+        '⚠️ student keys not found by studentID, attempting _id fallback:',
+        missingKeys
+      );
+
+      const possibleObjectIds = missingKeys.filter(k =>
+        mongoose.Types.ObjectId.isValid(k)
+      );
+      if (possibleObjectIds.length > 0) {
+        const fallbackStudents = await Student.find(
+          {
+            _id: {
+              $in: possibleObjectIds.map(
+                id => new mongoose.Types.ObjectId(id)
+              )
+            }
+          },
+          'firstName lastName email studentID admissionNumber'
+        ).lean();
+
+        console.log('📌 Students fetched by _id fallback:', fallbackStudents);
+
+        fallbackStudents.forEach(s => {
+          if (s) {
+            if (s.studentID) studentsByStudentID[s.studentID] = s;
+            if (s._id) studentsById[s._id.toString()] = s;
+          }
+        });
+      }
+    }
+
+    // Map student data into payments
+    const paymentsWithStudentData = payments.map(payment => {
+      const key = payment.student ? payment.student.toString() : null;
+      let student = key ? studentsByStudentID[key] : null;
+
+      // fallback by _id if studentID not matched
+      if (!student && key && studentsById[key]) {
+        student = studentsById[key];
+      }
+
+      let studentData;
+      if (student) {
+        studentData = {
+          _id: student._id || null,
+          name:
+            `${student.firstName || ''} ${student.lastName || ''}`.trim() ||
+            'Unknown',
+          email: student.email || '',
+          studentID: student.studentID || key || '',
+          admissionNumber: student.admissionNumber || ''
+        };
+      } else {
+        studentData = {
+          _id: null,
+          name: 'Unknown',
+          email: '',
+          studentID: key || '',
+          admissionNumber: ''
+        };
+      }
+
+      return {
+        ...payment,
+        student: studentData
+      };
+    });
+
+    console.log('📌 Payments after mapping student data:', paymentsWithStudentData);
+
+    // ✅ Deduplicate: keep only latest payment per studentID
+    const uniquePaymentsMap = new Map();
+    paymentsWithStudentData.forEach(p => {
+      if (p.student && p.student.studentID) {
+        if (!uniquePaymentsMap.has(p.student.studentID)) {
+          uniquePaymentsMap.set(p.student.studentID, p); // keep first (latest) occurrence
+        }
+      }
+    });
+    const uniquePayments = Array.from(uniquePaymentsMap.values());
+
+    console.log('📌 Unique payments (deduped by studentID):', uniquePayments);
+
+    const total = await Payment.countDocuments(query);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        payments: uniquePayments,
+        paymentType: {
+          _id: paymentType._id,
+          name: paymentType.name,
+          amount: paymentType.amount,
+          description: paymentType.description
+        },
+        pagination: {
+          currentPage: pageNum,
+          totalPages: Math.ceil(total / limitNum),
+          totalPayments: uniquePayments.length, // ✅ reflect deduped total
+          hasNext: pageNum < Math.ceil(total / limitNum),
+          hasPrev: pageNum > 1
+        }
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error fetching payments by payment type:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching payments'
+    });
+  }
+};
+
+
+
 // ✅ Export all functions using CommonJS
 module.exports = {
   createPaymentType,
@@ -803,7 +857,8 @@ module.exports = {
   createOutstandingPaymentsForStudent,
   outstanding,
   getPaymentTypeById,
-  getStudentPaidPayment
+  getStudentPaidPayment,
+  getPaymentsByPaymentType,
 };
 
 

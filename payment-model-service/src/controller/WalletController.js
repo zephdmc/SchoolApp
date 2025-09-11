@@ -5,6 +5,8 @@ const PaymentType = require('../models/PaymentType');
 const { generateReference } = require('../services/helpers');
 const OutstandingPayment = require('../models/OutstandingPayment');
 
+const Student = require('../../../user-management-service/src/models/Student');
+
 // Add to your existing wallet controller
 const axios = require('axios');
 const FLUTTERWAVE_SECRET_KEY = process.env.FLUTTERWAVE_SECRET_KEY;
@@ -255,11 +257,20 @@ const payFromWalletWithOutstanding = async (req, res) => {
     const { studentId } = req.params;
     const { paymentTypeIds, outstandingIds } = req.body;
     
+    
     console.log('Payment request received:', {
       studentId,
       paymentTypeIds,
       outstandingIds
     });
+
+    const studentD = await Student.findOne({ studentID: studentId }).lean();
+    if (!studentD) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
 
     // Find wallet
     const wallet = await Wallet.findOne({ student: studentId });
@@ -272,7 +283,7 @@ const payFromWalletWithOutstanding = async (req, res) => {
       PaymentType.find({ _id: { $in: paymentTypeIds || [] } }),
       OutstandingPayment.find({ 
         _id: { $in: outstandingIds || [] },
-        student: studentId, // Ensure outstanding payments belong to this student
+        student: studentD, // Ensure outstanding payments belong to this student
         status: { $ne: 'paid' }
       })
     ]);
