@@ -22,6 +22,57 @@ exports.createSubject = async (req, res) => {
 };
 
 
+
+
+
+exports.getSubjectsByClass = async (req, res) => {
+  try {
+    const { classId } = req.params;
+console.log()
+    if (!classId) {
+      return res.status(400).json({
+        success: false,
+        error: "Class ID is required",
+      });
+    }
+
+    const subjects = await subjectService.getSubjectsByClass(classId);
+
+    if (!subjects || subjects.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No subjects found for this class",
+      });
+    }
+
+    // ✅ Format based on what getSubjectsByClass2 provides
+    const formattedData = subjects.map((subject) => ({
+      id: subject._id,
+      subjectName: subject.name || "Untitled",
+      subjectCode: subject.code || "No Code",
+      teacherName: subject.teacher || "Not Assigned",  // manually attached in service
+      sessionId: subject.session || null,                  // still an ID
+      termId: subject.term || null,                        // still an ID
+      classId: subject.class || null,                      // still an ID
+    }));
+
+    return res.status(200).json({
+      success: true,
+      count: formattedData.length,
+      data: formattedData,
+    });
+  } catch (error) {
+    console.error("Error fetching subjects by class:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Internal Server Error",
+      message: error.message,
+    });
+  }
+};
+
+
+
 exports.getSubjectsByTeacher = async (req, res) => {
   try {
       console.log('Request query:', req.query);
