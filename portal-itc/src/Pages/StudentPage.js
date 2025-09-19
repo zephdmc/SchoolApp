@@ -15,7 +15,7 @@ import Timetable from './StudentPage/MyTimeTable';
 import ExamTimetable from './StudentPage/My ExamTimeTable';
 import CalendarEvent from './StudentPage/CalendarEvent';
 import Library from './StudentPage/library';
-import ClassSubjectsView from './StudentPage/Mysubjects';
+import ClassSubjectsView from './StudentPage/MySubjects';
 
 
 const sections = {
