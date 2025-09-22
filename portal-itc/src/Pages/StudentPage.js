@@ -15,16 +15,16 @@ import Timetable from './StudentPage/MyTimeTable';
 import ExamTimetable from './StudentPage/My ExamTimeTable';
 import CalendarEvent from './StudentPage/CalendarEvent';
 import Library from './StudentPage/library';
-import ClassSubjectsView from './StudentPage/MySubjects';
-
+import ClassSubjectsView from './StudentPage/Mysubjects';
 
 const sections = {
   'Overview': { component: CalendarEvent, icon: FaTh },
-  'My Subjects': { component: ClassSubjectsView, icon: FaUsers },
   'My Profile': { component: MyProfile, icon: FaUser },
+  'My Subjects': { component: ClassSubjectsView, icon: FaUsers },
   'Result Checker': { component: ResultChecker, icon: FaFileAlt },
   'Bursery': { component: StudentPayments, icon: FaUsers },
   'My Wallet': { component: MyWallet, icon: FaUsers },
+  // 'Calendar Event': { component: CalendarEvent, icon: FaUser },
   'E-Materials': { component: Library, icon: FaUser },
   'Logout': { component: Settings, icon: FaSignOutAlt },
 };
