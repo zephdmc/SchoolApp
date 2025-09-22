@@ -25,7 +25,6 @@ const sections = {
   'Result Checker': { component: ResultChecker, icon: FaFileAlt },
   'Bursery': { component: StudentPayments, icon: FaUsers },
   'My Wallet': { component: MyWallet, icon: FaUsers },
-  // 'Calendar Event': { component: CalendarEvent, icon: FaUser },
   'E-Materials': { component: Library, icon: FaUser },
   'Logout': { component: Settings, icon: FaSignOutAlt },
 };
