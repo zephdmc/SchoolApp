@@ -20,7 +20,7 @@ import ClassSubjectsView from './StudentPage/MySubjects';
 
 const sections = {
   'Overview': { component: CalendarEvent, icon: FaTh },
-      'My Subjects': { component: ClassSubjectsView, icon: FaUsers },
+  'My Subjects': { component: ClassSubjectsView, icon: FaUsers },
   'My Profile': { component: MyProfile, icon: FaUser },
   'Result Checker': { component: ResultChecker, icon: FaFileAlt },
   'Bursery': { component: StudentPayments, icon: FaUsers },
