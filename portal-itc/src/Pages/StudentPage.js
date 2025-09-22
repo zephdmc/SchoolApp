@@ -4,8 +4,6 @@ import {
   FaTh, FaUsers, FaCar, FaFileAlt, FaChevronDown, FaChevronUp
 } from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
-// import ManageResult from '../Pages/StudentPage/ManageResult';
-// import Overview from '../Pages/StudentPage/Overview';
 import MyWallet from '../Pages/StudentPage/MyWallet';
 import MyProfile from '../Pages/StudentPage/MyProfile';
 import Settings from '../Pages/StudentPage/Settings';
@@ -24,7 +22,6 @@ const sections = {
   'Result Checker': { component: ResultChecker, icon: FaFileAlt },
   'Bursery': { component: StudentPayments, icon: FaUsers },
   'My Wallet': { component: MyWallet, icon: FaUsers },
-  // 'Calendar Event': { component: CalendarEvent, icon: FaUser },
   'E-Materials': { component: Library, icon: FaUser },
   'Logout': { component: Settings, icon: FaSignOutAlt },
 };
